@@ -3,16 +3,54 @@ import json
 import string
 
 import requests
+from ovos_utils.messagebus import FakeBus, Message
 
 
 class SensorLogger:
+    @classmethod
     @abc.abstractmethod
-    def sensor_update(self, sensor):
+    def sensor_update(cls, sensor):
         pass
 
+    @classmethod
     @abc.abstractmethod
-    def binary_sensor_update(self, sensor):
+    def binary_sensor_update(cls, sensor):
         pass
+
+
+class MessageBusLogger(SensorLogger):
+    bus = FakeBus()
+
+    @classmethod
+    def sensor_update(cls, sensor):
+
+        device_id = sensor.device_id.replace(" ", "_")
+        name = sensor.device_name.lower()
+        for s in string.punctuation + string.whitespace:
+            device_id = device_id.replace(s, "_")
+            name = name.replace(s, "_")
+
+        cls.bus.emit(Message("ovos.phal.sensor",
+                             {"state": sensor.value,
+                              "sensor_id": f"{name}_{device_id}",
+                              "device_name": name,
+                              "name": device_id,
+                              "attributes": sensor.attrs}))
+
+    @classmethod
+    def binary_sensor_update(cls, sensor):
+        device_id = sensor.device_id.replace(" ", "_")
+        name = sensor.device_name.lower()
+        for s in string.punctuation + string.whitespace:
+            device_id = device_id.replace(s, "_")
+            name = name.replace(s, "_")
+
+        cls.bus.emit(Message("ovos.phal.binary_sensor",
+                             {"state": sensor.value,
+                              "sensor_id": f"{name}_{device_id}",
+                              "device_name": name,
+                              "name": device_id,
+                              "attributes": sensor.attrs}))
 
 
 class HomeAssistantUpdater(SensorLogger):

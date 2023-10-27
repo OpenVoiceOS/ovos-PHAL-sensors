@@ -10,7 +10,7 @@ from ovos_PHAL_ha_sensor.battery import BatterySensor
 from ovos_PHAL_ha_sensor.cpu import CPUCountSensor, \
     CPUTemperatureSensor, CPUUsageSensor
 from ovos_PHAL_ha_sensor.fan import CpuFanSensor, GpuFanSensor
-from ovos_PHAL_ha_sensor.loggers import HomeAssistantUpdater
+from ovos_PHAL_ha_sensor.loggers import HomeAssistantUpdater, MessageBusLogger
 from ovos_PHAL_ha_sensor.memory import SwapTotalSensor, SwapUsageSensor, \
     DiskPercentSensor, DiskTotalSensor, DiskUsageSensor, \
     MemoryTotalSensor, MemoryUsageSensor
@@ -55,6 +55,8 @@ class OVOSDevice(Device):
         if bus:
             cls.bus = bus
             BusSensor.bind(bus)
+            MessageBusLogger.bus = bus
+            Sensor.bind_logger(MessageBusLogger)
 
     @property
     def sensors(self) -> Set[Sensor]:
