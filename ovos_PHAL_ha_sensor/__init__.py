@@ -10,6 +10,7 @@ from ovos_PHAL_ha_sensor.battery import BatterySensor
 from ovos_PHAL_ha_sensor.cpu import CPUCountSensor, \
     CPUTemperatureSensor, CPUUsageSensor
 from ovos_PHAL_ha_sensor.fan import CpuFanSensor, GpuFanSensor
+from ovos_PHAL_ha_sensor.loggers import HomeAssistantUpdater
 from ovos_PHAL_ha_sensor.memory import SwapTotalSensor, SwapUsageSensor, \
     DiskPercentSensor, DiskTotalSensor, DiskUsageSensor, \
     MemoryTotalSensor, MemoryUsageSensor
@@ -46,9 +47,11 @@ class OVOSDevice(Device):
 
     @classmethod
     def bind(cls, name, ha_url, ha_token, bus=None):
-        Sensor.ha_url = ha_url
-        Sensor.ha_token = ha_token
         Sensor.device_name = name
+        if ha_url and ha_token:
+            HomeAssistantUpdater.ha_url = ha_url
+            HomeAssistantUpdater.ha_token = ha_token
+            Sensor.bind_logger(HomeAssistantUpdater)
         if bus:
             cls.bus = bus
             BusSensor.bind(bus)
@@ -143,7 +146,7 @@ class OVOSDevice(Device):
 
             if old is None or old != sensor.value:
                 try:
-                    sensor.ha_sensor_update()
+                    sensor.sensor_update()
                     self._ts[sensor.device_id] = time.time()
                 except Exception as e:
                     print(e)
@@ -162,8 +165,6 @@ class HAHttpSensor(PHALPlugin):
         self.ha_token = self.config.get("token")
         self.name = self.config.get("name", "OVOSDevice")
         self.sleep = self.config.get("time_between_checks", 5)
-        if not self.ha_url or not self.ha_url:
-            raise ValueError("missing homeassistant credentials")
         OVOSDevice.bind(self.name, self.ha_url, self.ha_token, self.bus)
         self.device = OVOSDevice(self.name,
                                  screen=self.config.get("screen_sensors", False),

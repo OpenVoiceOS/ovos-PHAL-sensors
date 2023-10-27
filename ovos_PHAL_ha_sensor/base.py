@@ -1,20 +1,22 @@
 import abc
-import json
-import string
 
-import requests
 from ovos_utils import classproperty
+
+from ovos_PHAL_ha_sensor.loggers import SensorLogger
 
 
 class Sensor:
     device_name = ""
-    ha_url = ""
-    ha_token = ""
     unit = "string"
     device_id = ""
     _once = False  # read on launch only
     _slow = True  # cool down period of 15 mins
     _thread_safe = True
+    loggers = []
+
+    @classmethod
+    def bind_logger(cls, logger: SensorLogger):
+        cls.loggers.append(logger)
 
     @classproperty
     def value(self):
@@ -29,25 +31,9 @@ class Sensor:
     def __repr__(self):
         return f"{self.device_id}({self.value}, {self.unit})"
 
-    def ha_sensor_update(self):
-        device_id = self.device_id.replace(" ", "_")
-        name = self.device_name.lower()
-        for s in string.punctuation + string.whitespace:
-            device_id = device_id.replace(s, "_")
-            name = name.replace(s, "_")
-        # print("updating:", device_id, f"{self.ha_url}/api/states/sensor.ovos_{name}_{device_id}")
-        try:
-            response = requests.post(
-                f"{self.ha_url}/api/states/sensor.ovos_{name}_{device_id}",
-                headers={
-                    "Authorization": f"Bearer {self.ha_token}",
-                    "content-type": "application/json",
-                },
-                data=json.dumps({"state": self.value, "attributes": self.attrs}),
-            )
-            print(response.text)
-        except:
-            print("failed to push data to HA")
+    def sensor_update(self):
+        for log in self.loggers:
+            log.sensor_update(self)
 
 
 class Device:
@@ -97,26 +83,9 @@ class BooleanSensor(NumericSensor):
                 "device_class": "running",
                 "state_color": True}
 
-    def ha_sensor_update(self):
-        device_id = self.device_id.replace(" ", "_")
-        name = self.device_name.lower()
-        for s in string.punctuation + string.whitespace:
-            device_id = device_id.replace(s, "_")
-            name = name.replace(s, "_")
-
-        # print("updating:", device_id, f"{self.ha_url}/api/states/binary_sensor.ovos_{name}_{device_id}")
-        try:
-            response = requests.post(
-                f"{self.ha_url}/api/states/binary_sensor.ovos_{name}_{device_id}",
-                headers={
-                    "Authorization": f"Bearer {self.ha_token}",
-                    "content-type": "application/json",
-                },
-                data=json.dumps({"state": self.value, "attributes": self.attrs}),
-            )
-            print(response.text)
-        except:
-            print("failed to push data to HA")
+    def sensor_update(self):
+        for log in self.loggers:
+            log.binary_sensor_update(self)
 
 
 class BusSensor(Sensor):
