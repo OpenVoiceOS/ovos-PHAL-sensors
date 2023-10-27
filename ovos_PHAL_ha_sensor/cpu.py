@@ -9,6 +9,7 @@ from ovos_PHAL_ha_sensor.base import NumericSensor, PercentageSensor
 class CPUCountSensor(NumericSensor):
     unit = "number"
     device_id = "cpu_count"
+    _once = True
 
     @classproperty
     def value(self):

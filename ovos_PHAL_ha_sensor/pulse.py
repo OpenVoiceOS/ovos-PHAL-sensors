@@ -122,6 +122,8 @@ def pa_bluez_sinks():
 class PAVersionSensor(Sensor):
     device_id = "pa_version"
     unit = "string"
+    _once = True
+    _thread_safe = False
 
     @classproperty
     def value(self):
@@ -130,6 +132,8 @@ class PAVersionSensor(Sensor):
 
 class PAChannelCountSensor(NumericSensor):
     device_id = "pa_channel_count"
+    _once = True
+    _thread_safe = False
 
     @classproperty
     def value(self):
@@ -139,6 +143,8 @@ class PAChannelCountSensor(NumericSensor):
 class PADefaultSinkSensor(Sensor):
     device_id = "pa_default_sink"
     unit = "string"
+    _slow = False
+    _thread_safe = False
 
     @classproperty
     def value(self):
@@ -148,6 +154,8 @@ class PADefaultSinkSensor(Sensor):
 class PADefaultSourceSensor(Sensor):
     device_id = "pa_default_source"
     unit = "string"
+    _slow = False
+    _thread_safe = False
 
     @classproperty
     def value(self):
@@ -157,6 +165,8 @@ class PADefaultSourceSensor(Sensor):
 class PAHostnameSensor(Sensor):
     device_id = "pa_hostname"
     unit = "string"
+    _once = True
+    _thread_safe = False
 
     @classproperty
     def value(self):
@@ -165,6 +175,7 @@ class PAHostnameSensor(Sensor):
 
 class PAPlaybackSensor(BooleanSensor):
     device_id = "pa_is_playing"
+    _thread_safe = False
 
     @classproperty
     def value(self):
@@ -174,6 +185,8 @@ class PAPlaybackSensor(BooleanSensor):
 class PANowPlayingSensor(Sensor):
     device_id = "pa_now_playing"
     unit = "string"
+    _thread_safe = False
+    _slow = False
 
     @classproperty
     def value(self):
@@ -186,6 +199,7 @@ class PANowPlayingSensor(Sensor):
 
 class PABluezConnectedSensor(BooleanSensor):
     device_id = "pa_bluez_connected"
+    _thread_safe = False
 
     @classproperty
     def value(self):
@@ -197,6 +211,7 @@ class PABluezConnectedSensor(BooleanSensor):
 
 class PABluezActiveSensor(BooleanSensor):
     device_id = "pa_bluez_active"
+    _thread_safe = False
 
     @classproperty
     def value(self):

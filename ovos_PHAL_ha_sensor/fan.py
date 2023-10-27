@@ -13,7 +13,7 @@ class CpuFanSensor(PercentageSensor):
             for f in fans:
                 if f.label == "cpu_fan":
                     return f.current
-        return psutil.sensors_fans()
+        return 0
 
 
 class GpuFanSensor(PercentageSensor):
@@ -25,7 +25,7 @@ class GpuFanSensor(PercentageSensor):
             for f in fans:
                 if f.label == "gpu_fan":
                     return f.current
-        return psutil.sensors_fans()
+        return 0
 
 
 if __name__ == "__main__":

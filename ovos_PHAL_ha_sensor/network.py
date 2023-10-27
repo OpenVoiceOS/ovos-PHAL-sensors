@@ -13,6 +13,11 @@ class ExternalIPSensor(Sensor):
     def value(self):
         return urllib.request.urlopen('https://api.ipify.org').read().decode('utf8')
 
+    @classproperty
+    def attrs(cls):
+        return {"friendly_name": cls.__name__,
+                "icon": "mdi:ip"}
+
 
 if __name__ == "__main__":
     print(ExternalIPSensor())

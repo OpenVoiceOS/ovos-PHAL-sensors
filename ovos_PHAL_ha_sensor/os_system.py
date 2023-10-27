@@ -4,21 +4,30 @@ import platform
 import psutil
 from ovos_utils import classproperty
 
-from ovos_PHAL_ha_sensor.base import Sensor
+from ovos_PHAL_ha_sensor.base import Sensor, NumericSensor
 
 
-class BootTimeSensor(Sensor):
+class BootTimeSensor(NumericSensor):
     device_id = "boot_time"
     unit = "unix_time"
+    _once = True
 
     @classproperty
     def value(self):
         return str(psutil.boot_time())
 
+    @classproperty
+    def attrs(cls):
+        return {"friendly_name": cls.__name__,
+                "unit_of_measurement": cls.unit,
+                "icon": "mdi:timeline-clock"
+                }
+
 
 class OSNameSensor(Sensor):
     device_id = "os_name"
     unit = "string"
+    _once = True
 
     @classproperty
     def value(self):
@@ -28,6 +37,7 @@ class OSNameSensor(Sensor):
 class OSSystemSensor(Sensor):
     device_id = "os_system"
     unit = "string"
+    _once = True
 
     @classproperty
     def value(self):
@@ -37,6 +47,7 @@ class OSSystemSensor(Sensor):
 class ReleaseSensor(Sensor):
     device_id = "release"
     unit = "string"
+    _once = True
 
     @classproperty
     def value(self):
@@ -46,6 +57,7 @@ class ReleaseSensor(Sensor):
 class MachineSensor(Sensor):
     device_id = "machine"
     unit = "string"
+    _once = True
 
     @classproperty
     def value(self):
@@ -55,6 +67,7 @@ class MachineSensor(Sensor):
 class ArchitectureSensor(Sensor):
     device_id = "architecture"
     unit = "string"
+    _once = True
 
     @classproperty
     def value(self):
