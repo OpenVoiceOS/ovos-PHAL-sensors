@@ -47,13 +47,6 @@ class Sensor:
                 log.sensor_update(self)
 
 
-class Device:
-
-    @classproperty
-    def sensors(self):
-        return []
-
-
 @dataclass
 class NumericSensor(Sensor):
     unit: str = "number"

@@ -1,16 +1,15 @@
 import concurrent.futures
 import time
 from threading import Event
-from typing import Set
+from typing import List
 
 from ovos_plugin_manager.templates.phal import PHALPlugin
 
-from ovos_PHAL_sensors.base import Device, Sensor, BooleanSensor, BusSensor
+from ovos_PHAL_sensors.base import Sensor, BooleanSensor, BusSensor
 from ovos_PHAL_sensors.battery import BatterySensor
 from ovos_PHAL_sensors.cpu import CPUCountSensor, \
     CPUTemperatureSensor, CPUUsageSensor
 from ovos_PHAL_sensors.fan import CpuFanSensor, GpuFanSensor
-from ovos_PHAL_sensors.prices import HipermercadosPortugal
 from ovos_PHAL_sensors.inventory import Inventory
 from ovos_PHAL_sensors.loggers import HomeAssistantUpdater, MessageBusLogger
 from ovos_PHAL_sensors.memory import SwapTotalSensor, SwapUsageSensor, \
@@ -19,6 +18,7 @@ from ovos_PHAL_sensors.memory import SwapTotalSensor, SwapUsageSensor, \
 from ovos_PHAL_sensors.network import ExternalIPSensor
 from ovos_PHAL_sensors.os_system import MachineSensor, ArchitectureSensor, OSSystemSensor, \
     OSNameSensor, ReleaseSensor, BootTimeSensor
+from ovos_PHAL_sensors.prices import HipermercadosPortugal
 from ovos_PHAL_sensors.procs import SystemdSensor, DBUSDaemonSensor, KDEConnectSensor, \
     PipewireSensor, PulseAudioSensor, PlasmaShellSensor, FirefoxSensor, SpotifySensor, \
     MiniDLNASensor, UPMPDCliSensor
@@ -28,7 +28,7 @@ from ovos_PHAL_sensors.pulse import PAVersionSensor, PAHostnameSensor, PAPlaybac
 from ovos_PHAL_sensors.screen import ScreenBrightnessSensor
 
 
-class OVOSDevice(Device):
+class OVOSDevice:
 
     def __init__(self, name, screen=True, battery=True,
                  memory=True, cpu=True, network=True, fan=True,
@@ -46,9 +46,10 @@ class OVOSDevice(Device):
         self.pa = pa
         self.hiper = hipermercados
         self.inventory = inventory
+
         self._readings = {}
         self._ts = {}
-        self._workers = 12
+        self._workers = 6
 
     @classmethod
     def bind(cls, name, ha_url, ha_token, bus=None):
@@ -64,7 +65,7 @@ class OVOSDevice(Device):
             Sensor.bind_logger(MessageBusLogger)
 
     @property
-    def sensors(self) -> Set[Sensor]:
+    def sensors(self) -> List[Sensor]:
         sensors = []
         if self.pa:
             sensors += [PAHostnameSensor(), PAVersionSensor(), PAChannelCountSensor(),
@@ -170,8 +171,8 @@ class OVOSDevice(Device):
         self._parallel_readings(get_reading)
 
 
-class HAHttpSensor(PHALPlugin):
-    def __init__(self, bus, name="http_sensor", config=None):
+class PHALSensors(PHALPlugin):
+    def __init__(self, bus, name="phal_sensors", config=None):
         self.running = False
         self.sleep = 5
         super().__init__(bus, name, config or {})
@@ -188,7 +189,10 @@ class HAHttpSensor(PHALPlugin):
                                  cpu=self.config.get("cpu_sensors", True),
                                  memory=self.config.get("memory_sensors", True),
                                  network=self.config.get("network_sensors", True),
+                                 fan=self.config.get("fan_sensors", True),
                                  os=self.config.get("os_sensors", True),
+                                 apps=self.config.get("app_sensors", True),
+                                 pa=self.config.get("pulseaudio_sensors", True),
                                  inventory=self.config.get("inventory", False),
                                  hipermercados=self.config.get("hipermercados", False))
 
@@ -209,5 +213,5 @@ if __name__ == "__main__":
         "host": "http://192.168.1.8:8123",
         "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiI2NGZmODYxY2M3ZDE0ZDZmODQ5MTMxNDgwODAyMmRmMiIsImlhdCI6MTY5ODM3ODk3NSwiZXhwIjoyMDEzNzM4OTc1fQ.PKPbyAw5dYPxZaLexy_Ed_U3OYRJeZI4DOKPljmE3Ow"
     }
-    sensor = HAHttpSensor(bus=FakeBus(), config=config)
+    sensor = PHALSensors(bus=FakeBus(), config=config)
     wait_for_exit_signal()
