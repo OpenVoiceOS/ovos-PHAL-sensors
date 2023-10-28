@@ -44,6 +44,30 @@ to enable screen sensors `pip install screen-brightness-control `
 - host  - home assistant url
 - token - home assistant long lived access token
 
+## Sensors Loggers
+
+Currently 2 sensor data loggers are provided
+
+- HomeAssistant - if host and token are set the sensors will show up in home assistant
+- Messagebus - sensor readings are emitted as bus messages
+
+
+````python
+Message("ovos.phal.sensor",
+         {"state": sensor.value,
+          "sensor_id": f"{name}_{unique_id}",
+          "device_name": name,
+          "name": unique_id,
+          "attributes": sensor.attrs})
+
+Message("ovos.phal.binary_sensor",
+         {"state": sensor.value,
+          "sensor_id": f"{name}_{unique_id}",
+          "device_name": name,
+          "name": unique_id,
+          "attributes": sensor.attrs})
+````
+
 ## Sensors
 
 PulseAudio
