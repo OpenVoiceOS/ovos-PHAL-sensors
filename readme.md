@@ -9,6 +9,12 @@ sensors will have a unique identifier of the format `sensor.ovos_{name}_{sensor_
 
 ![imagem](https://github.com/OpenVoiceOS/ovos-PHAL-sensors/assets/33701864/57ed6731-f6ec-4b23-8dc6-8d49fae7203f)
 
+## Dependencies
+
+to enable pulseaudio sensors `pip install pulsectl`
+
+to enable screen sensors `pip install screen-brightness-control `
+
 ## Config
 
 TODO - finish defining this
