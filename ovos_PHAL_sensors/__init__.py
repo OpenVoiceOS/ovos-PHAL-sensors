@@ -11,7 +11,6 @@ from ovos_PHAL_sensors.battery import BatterySensor
 from ovos_PHAL_sensors.cpu import CPUCountSensor, \
     CPUTemperatureSensor, CPUUsageSensor
 from ovos_PHAL_sensors.fan import CpuFanSensor, GpuFanSensor
-from ovos_PHAL_sensors.inventory import Inventory
 from ovos_PHAL_sensors.loggers import HomeAssistantUpdater, MessageBusLogger
 from ovos_PHAL_sensors.memory import SwapTotalSensor, SwapUsageSensor, \
     DiskPercentSensor, DiskTotalSensor, DiskUsageSensor, \
@@ -19,7 +18,6 @@ from ovos_PHAL_sensors.memory import SwapTotalSensor, SwapUsageSensor, \
 from ovos_PHAL_sensors.network import ExternalIPSensor
 from ovos_PHAL_sensors.os_system import MachineSensor, ArchitectureSensor, OSSystemSensor, \
     OSNameSensor, ReleaseSensor, BootTimeSensor
-from ovos_PHAL_sensors.prices import HipermercadosPortugal
 from ovos_PHAL_sensors.procs import SystemdSensor, DBUSDaemonSensor, KDEConnectSensor, \
     PipewireSensor, PulseAudioSensor, PlasmaShellSensor, FirefoxSensor, SpotifySensor, \
     MiniDLNASensor, UPMPDCliSensor
@@ -33,8 +31,7 @@ class OVOSDevice:
 
     def __init__(self, name, screen=True, battery=True,
                  memory=True, cpu=True, network=True, fan=True,
-                 os=True, apps=True, pa=True, hipermercados=False,
-                 inventory=False):
+                 os=True, apps=True, pa=True):
         self.name = name
         self.screen = screen
         self.battery = battery
@@ -45,8 +42,6 @@ class OVOSDevice:
         self.os = os
         self.apps = apps
         self.pa = pa
-        self.hiper = hipermercados
-        self.inventory = inventory
 
         self._readings = {}
         self._ts = {}
@@ -123,10 +118,6 @@ class OVOSDevice:
         for s in sensors:
             s.device_name = f"{self.name}_{s.device_name}"
 
-        if self.hiper:
-            sensors += HipermercadosPortugal().sensors
-        if self.inventory:
-            sensors += Inventory().sensors
         return sensors
 
     def _parallel_readings(self, do_reading):
@@ -209,9 +200,7 @@ class PHALSensors(PHALPlugin):
                                  fan=self.config.get("fan_sensors", True),
                                  os=self.config.get("os_sensors", True),
                                  apps=self.config.get("app_sensors", True),
-                                 pa=self.config.get("pulseaudio_sensors", True),
-                                 inventory=self.config.get("inventory", False),
-                                 hipermercados=self.config.get("hipermercados", False))
+                                 pa=self.config.get("pulseaudio_sensors", True))
 
     def run(self):
         self.initialize()
