@@ -23,27 +23,27 @@ class MessageBusLogger(SensorLogger):
     @classmethod
     def sensor_update(cls, sensor):
         from ovos_PHAL_sensors.base import _norm
-        device_id = _norm(sensor.unique_id)
+        unique_id = _norm(sensor.unique_id)
         name = _norm(sensor.device_name)
 
         cls.bus.emit(Message("ovos.phal.sensor",
                              {"state": sensor.value,
-                              "sensor_id": f"{name}_{device_id}",
+                              "sensor_id": f"{name}_{unique_id}",
                               "device_name": name,
-                              "name": device_id,
+                              "name": unique_id,
                               "attributes": sensor.attrs}))
 
     @classmethod
     def binary_sensor_update(cls, sensor):
         from ovos_PHAL_sensors.base import _norm
-        device_id = _norm(sensor.unique_id)
+        unique_id = _norm(sensor.unique_id)
         name = _norm(sensor.device_name)
 
         cls.bus.emit(Message("ovos.phal.binary_sensor",
                              {"state": sensor.value,
-                              "sensor_id": f"{name}_{device_id}",
+                              "sensor_id": f"{name}_{unique_id}",
                               "device_name": name,
-                              "name": device_id,
+                              "name": unique_id,
                               "attributes": sensor.attrs}))
 
 
@@ -55,13 +55,13 @@ class HomeAssistantUpdater(SensorLogger):
     def binary_sensor_update(cls, sensor):
 
         from ovos_PHAL_sensors.base import _norm
-        device_id = _norm(sensor.unique_id)
+        unique_id = _norm(sensor.unique_id)
         name = _norm(sensor.device_name)
 
-        # print("updating:", device_id, f"{self.ha_url}/api/states/binary_sensor.ovos_{name}_{device_id}")
+        # print("updating:", unique_id, f"{self.ha_url}/api/states/binary_sensor.ovos_{name}_{unique_id}")
         try:
             response = requests.post(
-                f"{cls.ha_url}/api/states/binary_sensor.ovos_{name}_{device_id}",
+                f"{cls.ha_url}/api/states/binary_sensor.ovos_{name}_{unique_id}",
                 headers={
                     "Authorization": f"Bearer {cls.ha_token}",
                     "content-type": "application/json",
@@ -71,19 +71,19 @@ class HomeAssistantUpdater(SensorLogger):
             ).json()
             print(response)
         except:
-            print(f"failed to push data to {cls.ha_url}/api/states/binary_sensor.ovos_{name}_{device_id}", sensor.attrs)
+            print(f"failed to push data to {cls.ha_url}/api/states/binary_sensor.ovos_{name}_{unique_id}", sensor.attrs)
 
     @classmethod
     def sensor_update(cls, sensor):
 
         from ovos_PHAL_sensors.base import _norm
-        device_id = _norm(sensor.unique_id)
+        unique_id = _norm(sensor.unique_id)
         name = _norm(sensor.device_name)
 
-        # print("updating:", device_id, f"{self.ha_url}/api/states/binary_sensor.ovos_{name}_{device_id}")
+        # print("updating:", unique_id, f"{self.ha_url}/api/states/sensor.ovos_{name}_{unique_id}")
         try:
             response = requests.post(
-                f"{cls.ha_url}/api/states/sensor.ovos_{name}_{device_id}",
+                f"{cls.ha_url}/api/states/sensor.ovos_{name}_{unique_id}",
                 headers={
                     "Authorization": f"Bearer {cls.ha_token}",
                     "content-type": "application/json",
@@ -93,4 +93,4 @@ class HomeAssistantUpdater(SensorLogger):
             )
             print(response.text)
         except:
-            print(f"failed to push data to HA /sensor.ovos_{name}_{device_id}", sensor.attrs)
+            print(f"failed to push data to HA /sensor.ovos_{name}_{unique_id}", sensor.attrs)
