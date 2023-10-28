@@ -1,13 +1,15 @@
+import dataclasses
 import urllib
 
 from ovos_utils import classproperty
 
-from ovos_PHAL_ha_sensor.base import Sensor
+from ovos_PHAL_sensors.base import Sensor
 
 
+@dataclasses.dataclass
 class ExternalIPSensor(Sensor):
-    device_id = "external_ip"
-    unit = "string"
+    unique_id: str = "external_ip"
+    device_name: str = "network"
 
     @classproperty
     def value(self):

@@ -5,9 +5,11 @@ try:
 except:
     pulse = None
 
+from dataclasses import dataclass
+
 from ovos_utils import classproperty
 
-from ovos_PHAL_ha_sensor.base import BooleanSensor, Sensor, NumericSensor
+from ovos_PHAL_sensors.base import BooleanSensor, Sensor, NumericSensor
 
 
 def pa_list_cards():
@@ -119,74 +121,85 @@ def pa_bluez_sinks():
     return sinks
 
 
+@dataclass
 class PAVersionSensor(Sensor):
-    device_id = "pa_version"
-    unit = "string"
+    unique_id: str = "version"
+    device_name: str = "pulseaudio"
     _once = True
-    _thread_safe = False
+    _thread_safe: bool = False
 
     @classproperty
     def value(self):
         return pulse.server_info().server_version
 
 
+@dataclass
 class PAChannelCountSensor(NumericSensor):
-    device_id = "pa_channel_count"
-    _once = True
-    _thread_safe = False
+    unique_id: str = "channel_count"
+    device_name: str = "pulseaudio"
+    _once: bool = True
+    _thread_safe: bool = False
 
     @classproperty
     def value(self):
         return pulse.server_info().channel_count
 
 
+@dataclass
 class PADefaultSinkSensor(Sensor):
-    device_id = "pa_default_sink"
-    unit = "string"
-    _slow = False
-    _thread_safe = False
+    unique_id: str = "default_sink"
+    device_name: str = "pulseaudio"
+    unit: str = "string"
+    _slow: bool = False
+    _thread_safe: bool = False
 
     @classproperty
     def value(self):
         return pulse.server_info().default_sink_name
 
 
+@dataclass
 class PADefaultSourceSensor(Sensor):
-    device_id = "pa_default_source"
-    unit = "string"
-    _slow = False
-    _thread_safe = False
+    unique_id: str = "default_source"
+    device_name: str = "pulseaudio"
+    unit: str = "string"
+    _slow: bool = False
+    _thread_safe: bool = False
 
     @classproperty
     def value(self):
         return pulse.server_info().default_source_name
 
 
+@dataclass
 class PAHostnameSensor(Sensor):
-    device_id = "pa_hostname"
-    unit = "string"
-    _once = True
-    _thread_safe = False
+    unique_id: str = "hostname"
+    device_name: str = "pulseaudio"
+    _once: bool = True
+    _thread_safe: bool = False
 
     @classproperty
     def value(self):
         return pulse.server_info().host_name
 
 
+@dataclass
 class PAPlaybackSensor(BooleanSensor):
-    device_id = "pa_is_playing"
-    _thread_safe = False
+    unique_id: str = "is_playing"
+    device_name: str = "pulseaudio"
+    _thread_safe: bool = False
 
     @classproperty
     def value(self):
         return any(not s.corked for s in pulse.sink_input_list())
 
 
+@dataclass
 class PANowPlayingSensor(Sensor):
-    device_id = "pa_now_playing"
-    unit = "string"
-    _thread_safe = False
-    _slow = False
+    unique_id: str = "now_playing"
+    device_name: str = "pulseaudio"
+    _thread_safe: bool = False
+    _slow: bool = False
 
     @classproperty
     def value(self):
@@ -197,9 +210,11 @@ class PANowPlayingSensor(Sensor):
         return now_playing_str.strip()
 
 
+@dataclass
 class PABluezConnectedSensor(BooleanSensor):
-    device_id = "pa_bluez_connected"
-    _thread_safe = False
+    unique_id: str = "bluez_connected"
+    device_name: str = "pulseaudio"
+    _thread_safe: bool = False
 
     @classproperty
     def value(self):
@@ -209,9 +224,11 @@ class PABluezConnectedSensor(BooleanSensor):
         return False
 
 
+@dataclass
 class PABluezActiveSensor(BooleanSensor):
-    device_id = "pa_bluez_active"
-    _thread_safe = False
+    unique_id: str = "bluez_active"
+    device_name: str = "pulseaudio"
+    _thread_safe: bool = False
 
     @classproperty
     def value(self):

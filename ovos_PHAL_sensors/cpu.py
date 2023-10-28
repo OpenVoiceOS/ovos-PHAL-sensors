@@ -1,32 +1,39 @@
+import dataclasses
 import os
 
 import psutil
 from ovos_utils import classproperty
 
-from ovos_PHAL_ha_sensor.base import NumericSensor, PercentageSensor
+from ovos_PHAL_sensors.base import NumericSensor, PercentageSensor
 
 
+@dataclasses.dataclass
 class CPUCountSensor(NumericSensor):
-    unit = "number"
-    device_id = "cpu_count"
-    _once = True
+    unit: str = "number"
+    unique_id: str = "count"
+    device_name: str = "cpu"
+    _once: bool = True
 
     @classproperty
     def value(self):
         return os.cpu_count()
 
 
+@dataclasses.dataclass
 class CPUUsageSensor(PercentageSensor):
-    device_id = "cpu_percent"
+    unique_id: str = "usage_percent"
+    device_name: str = "cpu"
 
     @classproperty
     def value(self):
         return psutil.cpu_percent(1)
 
 
+@dataclasses.dataclass
 class CPUTemperatureSensor(NumericSensor):
-    unit = "°C"
-    device_id = "cpu_temperature"
+    unit: str = "°C"
+    unique_id: str = "temperature"
+    device_name: str = "cpu"
 
     @classproperty
     def value(self):

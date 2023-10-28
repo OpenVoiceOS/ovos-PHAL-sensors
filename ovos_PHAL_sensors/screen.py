@@ -1,6 +1,8 @@
+import dataclasses
+
 from ovos_utils import classproperty
 
-from ovos_PHAL_ha_sensor.base import PercentageSensor
+from ovos_PHAL_sensors.base import PercentageSensor
 
 try:
     import screen_brightness_control as sbc
@@ -8,8 +10,10 @@ except:
     sbc = None
 
 
+@dataclasses.dataclass
 class ScreenBrightnessSensor(PercentageSensor):
-    device_id = "brightness_percent"
+    unique_id: str = "brightness_percent"
+    device_name: str = "screen"
 
     @classproperty
     def value(self):

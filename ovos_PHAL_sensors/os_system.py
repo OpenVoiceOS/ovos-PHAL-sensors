@@ -1,16 +1,19 @@
+import dataclasses
 import os
 import platform
 
 import psutil
 from ovos_utils import classproperty
 
-from ovos_PHAL_ha_sensor.base import Sensor, NumericSensor
+from ovos_PHAL_sensors.base import Sensor, NumericSensor
 
 
+@dataclasses.dataclass
 class BootTimeSensor(NumericSensor):
-    device_id = "boot_time"
-    unit = "unix_time"
-    _once = True
+    unique_id: str = "boot_time"
+    device_name: str = "os"
+    unit: str = "unix_time"
+    _once: bool = True
 
     @classproperty
     def value(self):
@@ -24,50 +27,55 @@ class BootTimeSensor(NumericSensor):
                 }
 
 
+@dataclasses.dataclass
 class OSNameSensor(Sensor):
-    device_id = "os_name"
-    unit = "string"
-    _once = True
+    unique_id: str = "name"
+    device_name: str = "os"
+    _once: bool = True
 
     @classproperty
     def value(self):
         return os.name
 
 
+@dataclasses.dataclass
 class OSSystemSensor(Sensor):
-    device_id = "os_system"
-    unit = "string"
-    _once = True
+    unique_id: str = "system"
+    device_name: str = "os"
+    _once: bool = True
 
     @classproperty
     def value(self):
         return platform.system()
 
 
+@dataclasses.dataclass
 class ReleaseSensor(Sensor):
-    device_id = "release"
-    unit = "string"
-    _once = True
+    unique_id: str = "release"
+    device_name: str = "os"
+    _once: bool = True
 
     @classproperty
     def value(self):
         return platform.release()
 
 
+@dataclasses.dataclass
 class MachineSensor(Sensor):
-    device_id = "machine"
-    unit = "string"
-    _once = True
+    unique_id: str = "machine"
+    device_name: str = "os"
+    _once: bool = True
 
     @classproperty
     def value(self):
         return platform.machine()
 
 
+@dataclasses.dataclass
 class ArchitectureSensor(Sensor):
-    device_id = "architecture"
-    unit = "string"
-    _once = True
+    unique_id: str = "architecture"
+    device_name: str = "os"
+    _once: bool = True
 
     @classproperty
     def value(self):

@@ -1,10 +1,11 @@
 import getpass
 import os
+from dataclasses import dataclass
 
 import psutil
 from ovos_utils import classproperty
 
-from ovos_PHAL_ha_sensor.base import BooleanSensor
+from ovos_PHAL_sensors.base import BooleanSensor
 
 
 def get_procs():
@@ -21,64 +22,80 @@ def _find_proc(name):
             return p
 
 
+@dataclass
 class SystemdSensor(BooleanSensor):
-    device_id = "systemd_running"
+    unique_id: str = "systemd_running"
+    device_name: str = "os"
 
     @classproperty
     def value(self):
         return bool(_find_proc("systemd"))
 
 
+@dataclass
 class DBUSDaemonSensor(BooleanSensor):
-    device_id = "dbus_daemon_running"
+    unique_id: str = "dbus_daemon_running"
+    device_name: str = "os"
 
     @classproperty
     def value(self):
         return bool(_find_proc("dbus-daemon"))
 
 
+@dataclass
 class KDEConnectSensor(BooleanSensor):
-    device_id = "kdeconnect_running"
+    unique_id: str = "kdeconnect_running"
+    device_name: str = "os"
 
     @classproperty
     def value(self):
         return bool(_find_proc("kdeconnectd"))
 
 
+@dataclass
 class PulseAudioSensor(BooleanSensor):
-    device_id = "pulseaudio_running"
+    unique_id: str = "pulseaudio_running"
+    device_name: str = "os"
 
     @classproperty
     def value(self):
         return bool(_find_proc("pulseaudio"))
 
 
+@dataclass
 class PipewireSensor(BooleanSensor):
-    device_id = "pipewire_running"
+    unique_id: str = "pipewire_running"
+    device_name: str = "os"
 
     @classproperty
     def value(self):
         return bool(_find_proc("pipewire"))
 
 
+@dataclass
 class PlasmaShellSensor(BooleanSensor):
-    device_id = "plasmashell_running"
+    unique_id: str = "plasmashell_running"
+    device_name: str = "os"
 
     @classproperty
     def value(self):
         return bool(_find_proc("plasmashell"))
 
 
+@dataclass
 class FirefoxSensor(BooleanSensor):
-    device_id = "firefox_running"
+    unique_id: str = "firefox_running"
+    device_name: str = "os"
 
     @classproperty
     def value(self):
         return bool(_find_proc("firefox"))
 
 
+@dataclass
 class SpotifySensor(BooleanSensor):
-    device_id = "spotify_running"
+    unique_id: str = "spotify_running"
+    device_name: str = "os"
 
     @classproperty
     def value(self):
@@ -89,8 +106,10 @@ class SpotifySensor(BooleanSensor):
         return bool(p)
 
 
+@dataclass
 class MiniDLNASensor(BooleanSensor):
-    device_id = "minidlnad_running"
+    unique_id: str = "minidlnad_running"
+    device_name: str = "os"
 
     @classproperty
     def value(self):
@@ -98,8 +117,10 @@ class MiniDLNASensor(BooleanSensor):
         return bool(p)
 
 
+@dataclass
 class UPMPDCliSensor(BooleanSensor):
-    device_id = "upmpdcli_running"
+    unique_id: str = "upmpdcli_running"
+    device_name: str = "os"
 
     @classproperty
     def value(self):

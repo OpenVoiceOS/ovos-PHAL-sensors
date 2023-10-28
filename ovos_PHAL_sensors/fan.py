@@ -1,11 +1,15 @@
+import dataclasses
+
 import psutil
 from ovos_utils import classproperty
 
-from ovos_PHAL_ha_sensor.base import PercentageSensor
+from ovos_PHAL_sensors.base import PercentageSensor
 
 
+@dataclasses.dataclass
 class CpuFanSensor(PercentageSensor):
-    device_id = "cpu_fan_percent"
+    unique_id: str = "cpu_fan_percent"
+    device_name: str = "fan"
 
     @classproperty
     def value(self):
@@ -16,8 +20,10 @@ class CpuFanSensor(PercentageSensor):
         return 0
 
 
+@dataclasses.dataclass
 class GpuFanSensor(PercentageSensor):
-    device_id = "gpu_fan_percent"
+    unique_id: str = "gpu_fan_percent"
+    device_name: str = "fan"
 
     @classproperty
     def value(self):

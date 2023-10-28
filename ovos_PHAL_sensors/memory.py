@@ -1,65 +1,86 @@
+import dataclasses
 import shutil
 
 import psutil
 from ovos_utils import classproperty
 
-from ovos_PHAL_ha_sensor.base import NumericSensor, PercentageSensor
+from ovos_PHAL_sensors.base import NumericSensor, PercentageSensor
 
 
+@dataclasses.dataclass
 class DiskTotalSensor(NumericSensor):
-    unit = "MB"
-    device_id = "disk_total"
+    unit: str = "MB"
+    unique_id: str = "disk_total"
+    device_name: str = "memory"
+    _once: bool = True
 
     @classproperty
     def value(self):
         return shutil.disk_usage("/")[0]
 
 
+@dataclasses.dataclass
 class DiskUsageSensor(NumericSensor):
-    unit = "MB"
-    device_id = "disk_usage"
+    unit: str = "MB"
+    unique_id: str = "disk_usage"
+    device_name: str = "memory"
+    _slow: bool = True
 
     @classproperty
     def value(self):
         return shutil.disk_usage("/")[1]
 
 
+@dataclasses.dataclass
 class DiskPercentSensor(PercentageSensor):
-    device_id = "disk_percent"
+    unique_id: str = "disk_percent"
+    device_name: str = "memory"
+    _slow: bool = True
 
     @classproperty
     def value(self):
         return round(DiskUsageSensor().value * 100 / DiskTotalSensor().value, 2)
 
 
+@dataclasses.dataclass
 class MemoryUsageSensor(PercentageSensor):
-    device_id = "memory_percent"
+    unique_id: str = "usage_percent"
+    device_name: str = "memory"
 
     @classproperty
     def value(self):
         return psutil.virtual_memory()[2]
 
 
+@dataclasses.dataclass
 class MemoryTotalSensor(NumericSensor):
-    unit = "MB"
-    device_id = "memory_total"
+    unit: str = "MB"
+    unique_id: str = "total"
+    device_name: str = "memory"
+    _once: bool = True
 
     @classproperty
     def value(self):
         return psutil.virtual_memory()[0]
 
 
+@dataclasses.dataclass
 class SwapUsageSensor(PercentageSensor):
-    device_id = "swap_percent"
+    unique_id: str = "swap_percent"
+    device_name: str = "memory"
+    _slow: bool = True
 
     @classproperty
     def value(self):
         return psutil.swap_memory()[3]
 
 
+@dataclasses.dataclass
 class SwapTotalSensor(NumericSensor):
-    unit = "MB"
-    device_id = "swap_total"
+    unit: str = "MB"
+    unique_id: str = "swap_total"
+    device_name: str = "memory"
+    _once: bool = True
 
     @classproperty
     def value(self):

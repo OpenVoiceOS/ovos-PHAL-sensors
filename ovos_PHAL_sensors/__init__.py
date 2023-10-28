@@ -5,32 +5,35 @@ from typing import Set
 
 from ovos_plugin_manager.templates.phal import PHALPlugin
 
-from ovos_PHAL_ha_sensor.base import Device, Sensor, BooleanSensor, BusSensor
-from ovos_PHAL_ha_sensor.battery import BatterySensor
-from ovos_PHAL_ha_sensor.cpu import CPUCountSensor, \
+from ovos_PHAL_sensors.base import Device, Sensor, BooleanSensor, BusSensor
+from ovos_PHAL_sensors.battery import BatterySensor
+from ovos_PHAL_sensors.cpu import CPUCountSensor, \
     CPUTemperatureSensor, CPUUsageSensor
-from ovos_PHAL_ha_sensor.fan import CpuFanSensor, GpuFanSensor
-from ovos_PHAL_ha_sensor.loggers import HomeAssistantUpdater, MessageBusLogger
-from ovos_PHAL_ha_sensor.memory import SwapTotalSensor, SwapUsageSensor, \
+from ovos_PHAL_sensors.fan import CpuFanSensor, GpuFanSensor
+from ovos_PHAL_sensors.prices import HipermercadosPortugal
+from ovos_PHAL_sensors.inventory import Inventory
+from ovos_PHAL_sensors.loggers import HomeAssistantUpdater, MessageBusLogger
+from ovos_PHAL_sensors.memory import SwapTotalSensor, SwapUsageSensor, \
     DiskPercentSensor, DiskTotalSensor, DiskUsageSensor, \
     MemoryTotalSensor, MemoryUsageSensor
-from ovos_PHAL_ha_sensor.network import ExternalIPSensor
-from ovos_PHAL_ha_sensor.os_system import MachineSensor, ArchitectureSensor, OSSystemSensor, \
+from ovos_PHAL_sensors.network import ExternalIPSensor
+from ovos_PHAL_sensors.os_system import MachineSensor, ArchitectureSensor, OSSystemSensor, \
     OSNameSensor, ReleaseSensor, BootTimeSensor
-from ovos_PHAL_ha_sensor.procs import SystemdSensor, DBUSDaemonSensor, KDEConnectSensor, \
+from ovos_PHAL_sensors.procs import SystemdSensor, DBUSDaemonSensor, KDEConnectSensor, \
     PipewireSensor, PulseAudioSensor, PlasmaShellSensor, FirefoxSensor, SpotifySensor, \
     MiniDLNASensor, UPMPDCliSensor
-from ovos_PHAL_ha_sensor.pulse import PAVersionSensor, PAHostnameSensor, PAPlaybackSensor, PAChannelCountSensor, \
+from ovos_PHAL_sensors.pulse import PAVersionSensor, PAHostnameSensor, PAPlaybackSensor, PAChannelCountSensor, \
     PADefaultSinkSensor, PADefaultSourceSensor, PANowPlayingSensor, \
     PABluezActiveSensor, PABluezConnectedSensor
-from ovos_PHAL_ha_sensor.screen import ScreenBrightnessSensor
+from ovos_PHAL_sensors.screen import ScreenBrightnessSensor
 
 
 class OVOSDevice(Device):
 
-    def __init__(self, name, screen=False, battery=False,
-                 memory=True, cpu=True, network=True, fan=False,
-                 os=True, apps=True, pa=True):
+    def __init__(self, name, screen=True, battery=True,
+                 memory=True, cpu=True, network=True, fan=True,
+                 os=True, apps=True, pa=True, hipermercados=False,
+                 inventory=False):
         self.name = name
         self.screen = screen
         self.battery = battery
@@ -41,6 +44,8 @@ class OVOSDevice(Device):
         self.os = os
         self.apps = apps
         self.pa = pa
+        self.hiper = hipermercados
+        self.inventory = inventory
         self._readings = {}
         self._ts = {}
         self._workers = 12
@@ -63,7 +68,8 @@ class OVOSDevice(Device):
         sensors = []
         if self.pa:
             sensors += [PAHostnameSensor(), PAVersionSensor(), PAChannelCountSensor(),
-                        PAPlaybackSensor(), PABluezActiveSensor(), PABluezConnectedSensor(), PANowPlayingSensor(),
+                        PAPlaybackSensor(), PABluezActiveSensor(), PABluezConnectedSensor(),
+                        PANowPlayingSensor(),
                         PADefaultSourceSensor(), PADefaultSinkSensor()]
         if self.os:
             sensors += [OSNameSensor(), OSSystemSensor(),
@@ -97,7 +103,15 @@ class OVOSDevice(Device):
             sensors += [BatterySensor()]
         if self.fan:
             sensors += [CpuFanSensor(), GpuFanSensor()]
-        return set(sensors)
+
+        for s in sensors:
+            s.device_name = f"{self.name}_{s.device_name}"
+
+        if self.hiper:
+            sensors += HipermercadosPortugal().sensors
+        if self.inventory:
+            sensors += Inventory().sensors
+        return sensors
 
     def _parallel_readings(self, do_reading):
         results = {}
@@ -112,7 +126,7 @@ class OVOSDevice(Device):
                     def do_thing(u=sensor):
                         return do_reading(u)
 
-                    matchers[sensor.device_id] = do_thing
+                    matchers[sensor.unique_id] = do_thing
 
             # Start the operations and mark each future with its source
             future_to_source = {
@@ -133,23 +147,23 @@ class OVOSDevice(Device):
     def update(self):
 
         def get_reading(sensor):
-            if sensor.device_id not in self._readings:
-                self._readings[sensor.device_id] = sensor.value
-                self._ts[sensor.device_id] = time.time()
+            if sensor.unique_id not in self._readings:
+                self._readings[sensor.unique_id] = sensor.value
+                self._ts[sensor.unique_id] = time.time()
                 old = None
             else:
                 if sensor._once:
-                    # print("skipping", sensor.device_id)
+                    # print("skipping", sensor.unique_id)
                     return  # doesnt change
-                if sensor._slow and time.time() - self._ts[sensor.device_id] < 15 * 60:
-                    # print("skipping", sensor.device_id)
+                if sensor._slow and time.time() - self._ts[sensor.unique_id] < 15 * 60:
+                    # print("skipping", sensor.unique_id)
                     return  # track timestamp and do once/hour
-                old = self._readings[sensor.device_id]
+                old = self._readings[sensor.unique_id]
 
             if old is None or old != sensor.value:
                 try:
                     sensor.sensor_update()
-                    self._ts[sensor.device_id] = time.time()
+                    self._ts[sensor.unique_id] = time.time()
                 except Exception as e:
                     print(e)
 
@@ -169,12 +183,14 @@ class HAHttpSensor(PHALPlugin):
         self.sleep = self.config.get("time_between_checks", 5)
         OVOSDevice.bind(self.name, self.ha_url, self.ha_token, self.bus)
         self.device = OVOSDevice(self.name,
-                                 screen=self.config.get("screen_sensors", False),
-                                 battery=self.config.get("battery_sensors", False),
+                                 screen=self.config.get("screen_sensors", True),
+                                 battery=self.config.get("battery_sensors", True),
                                  cpu=self.config.get("cpu_sensors", True),
                                  memory=self.config.get("memory_sensors", True),
                                  network=self.config.get("network_sensors", True),
-                                 os=self.config.get("os_sensors", True))
+                                 os=self.config.get("os_sensors", True),
+                                 inventory=self.config.get("inventory", False),
+                                 hipermercados=self.config.get("hipermercados", False))
 
     def run(self):
         self.initialize()

@@ -1,11 +1,15 @@
+import dataclasses
+
 import psutil
 from ovos_utils import classproperty
 
-from ovos_PHAL_ha_sensor.base import PercentageSensor
+from ovos_PHAL_sensors.base import PercentageSensor
 
 
+@dataclasses.dataclass
 class BatterySensor(PercentageSensor):
-    device_id = "battery_percent"
+    unique_id: str = "percent"
+    device_name: str = "battery"
 
     @classproperty
     def value(self):
