@@ -5,6 +5,8 @@ Expose sensor data from your OVOS device to various systems
 - Messagebus events
 - Home Assistant (http sensors)
 
+![imagem](https://github.com/OpenVoiceOS/ovos-PHAL-sensors/assets/33701864/57ed6731-f6ec-4b23-8dc6-8d49fae7203f)
+
 ## Config
 
 TODO - finish defining this
