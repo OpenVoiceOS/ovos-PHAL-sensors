@@ -32,8 +32,10 @@ to enable screen sensors `pip install screen-brightness-control `
       "os_sensors": true,
       "apps_sensors": true,
       "pulseaudio_sensors": true,
-      "host": "",
-      "token": ""
+      "disable_bus": false,
+      "disable_ha": false,
+      "ha_host": "http://192.168.1.8:8123",
+      "ha_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiI2NGZmODYxY2M3ZDE0ZDZmODQ5..."
     }
   }
 }
@@ -41,8 +43,10 @@ to enable screen sensors `pip install screen-brightness-control `
 
 - name - the device name the sensors belong to
 - time_between_checks - time to wait between reading sensors
-- host  - home assistant url (will use [ovos-PHAL-plugin-homeassistant](https://github.com/OpenVoiceOS/ovos-PHAL-plugin-homeassistant) if not set and previously configured)
-- token - home assistant long lived access token (will use [ovos-PHAL-plugin-homeassistant](https://github.com/OpenVoiceOS/ovos-PHAL-plugin-homeassistant) if not set and previously configured)
+- disable_bus - do not emit sensors readings to bus
+- disable_ha - do not emit sensor readings to HA
+- ha_host (optional) - home assistant url (default to [ovos-PHAL-plugin-homeassistant](https://github.com/OpenVoiceOS/ovos-PHAL-plugin-homeassistant) if previously configured)
+- ha_token (optional) - home assistant long lived access token (default to [ovos-PHAL-plugin-homeassistant](https://github.com/OpenVoiceOS/ovos-PHAL-plugin-homeassistant) if previously configured)
 
 ## Sensors Loggers
 

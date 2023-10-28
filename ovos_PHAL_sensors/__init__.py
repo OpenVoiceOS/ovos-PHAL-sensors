@@ -53,8 +53,10 @@ class OVOSDevice:
         self._workers = 6
 
     @classmethod
-    def bind(cls, name, ha_url, ha_token, bus=None):
+    def bind(cls, name, ha_url, ha_token, bus=None, disable_bus=False, disable_ha=False):
         Sensor.device_name = name
+
+        # setup home assistant
         if not ha_token or not ha_url:  # check HA plugin config
             cfg = Configuration().get("PHAL", {}).get(
                 "ovos-PHAL-plugin-homeassistant", {})
@@ -66,12 +68,16 @@ class OVOSDevice:
         if ha_url and ha_token:
             HomeAssistantUpdater.ha_url = ha_url
             HomeAssistantUpdater.ha_token = ha_token
-            Sensor.bind_logger(HomeAssistantUpdater)
+            if not disable_ha:
+                Sensor.bind_logger(HomeAssistantUpdater)
+
+        # connect messagebus
         if bus:
             cls.bus = bus
             BusSensor.bind(bus)
             MessageBusLogger.bus = bus
-            Sensor.bind_logger(MessageBusLogger)
+            if not disable_bus:
+                Sensor.bind_logger(MessageBusLogger)
 
     @property
     def sensors(self) -> List[Sensor]:
@@ -187,11 +193,13 @@ class PHALSensors(PHALPlugin):
         super().__init__(bus, name, config or {})
 
     def initialize(self):
-        self.ha_url = self.config.get("host")
-        self.ha_token = self.config.get("token")
+        self.ha_url = self.config.get("ha_host")
+        self.ha_token = self.config.get("ha_token")
         self.name = self.config.get("name", "OVOSDevice")
         self.sleep = self.config.get("time_between_checks", 5)
-        OVOSDevice.bind(self.name, self.ha_url, self.ha_token, self.bus)
+        OVOSDevice.bind(self.name, self.ha_url, self.ha_token, self.bus,
+                        disable_bus=self.config.get("disable_bus", False),
+                        disable_ha=self.config.get("disable_ha", False))
         self.device = OVOSDevice(self.name,
                                  screen=self.config.get("screen_sensors", True),
                                  battery=self.config.get("battery_sensors", True),
@@ -219,8 +227,8 @@ if __name__ == "__main__":
 
     config = {
         "name": "pc_do_miro",
-        "host": "http://192.168.1.8:8123",
-        "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiI2NGZmODYxY2M3ZDE0ZDZmODQ5MTMxNDgwODAyMmRmMiIsImlhdCI6MTY5ODM3ODk3NSwiZXhwIjoyMDEzNzM4OTc1fQ.PKPbyAw5dYPxZaLexy_Ed_U3OYRJeZI4DOKPljmE3Ow"
+        "ha_host": "http://192.168.1.8:8123",
+        "ha_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiI2NGZmODYxY2M3ZDE0ZDZmODQ5MTMxNDgwODAyMmRmMiIsImlhdCI6MTY5ODM3ODk3NSwiZXhwIjoyMDEzNzM4OTc1fQ.PKPbyAw5dYPxZaLexy_Ed_U3OYRJeZI4DOKPljmE3Ow"
     }
     sensor = PHALSensors(bus=FakeBus(), config=config)
     wait_for_exit_signal()
