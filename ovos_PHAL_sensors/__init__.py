@@ -3,6 +3,7 @@ import time
 from threading import Event
 from typing import List
 
+from ovos_config import Configuration
 from ovos_plugin_manager.templates.phal import PHALPlugin
 
 from ovos_PHAL_sensors.base import Sensor, BooleanSensor, BusSensor
@@ -54,6 +55,14 @@ class OVOSDevice:
     @classmethod
     def bind(cls, name, ha_url, ha_token, bus=None):
         Sensor.device_name = name
+        if not ha_token or not ha_url:  # check HA plugin config
+            cfg = Configuration().get("PHAL", {}).get(
+                "ovos-PHAL-plugin-homeassistant", {})
+            if "api_key" in cfg and not ha_token:
+                ha_token = cfg["api_key"]
+            if "host" in cfg and not ha_url:
+                ha_url = cfg["host"]
+
         if ha_url and ha_token:
             HomeAssistantUpdater.ha_url = ha_url
             HomeAssistantUpdater.ha_token = ha_token
