@@ -17,25 +17,32 @@ to enable screen sensors `pip install screen-brightness-control `
 
 ## Config
 
-TODO - finish defining this
-
 ```json
 {
-  "name": "phal_device",
-  "time_between_checks": 5,
-  "screen_sensors": true,
-  "battery_sensors": true,
-  "cpu_sensors": true,
-  "memory_sensors": true,
-  "network_sensors": true,
-  "fan_sensors": true,
-  "os_sensors": true,
-  "apps_sensors": true,
-  "pulseaudio_sensors": true,
-  "host": "",
-  "token": ""
+  "PHAL": {
+    "ovos-PHAL-sensors": {
+      "name": "my_phal_device",
+      "time_between_checks": 15,
+      "screen_sensors": true,
+      "battery_sensors": true,
+      "cpu_sensors": true,
+      "memory_sensors": true,
+      "network_sensors": true,
+      "fan_sensors": true,
+      "os_sensors": true,
+      "apps_sensors": true,
+      "pulseaudio_sensors": true,
+      "host": "",
+      "token": ""
+    }
+  }
 }
 ```
+
+- name - the device name the sensors belong to
+- time_between_checks - time to wait between reading sensors
+- host  - home assistant url
+- token - home assistant long lived access token
 
 ## Sensors
 

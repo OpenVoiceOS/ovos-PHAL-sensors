@@ -49,7 +49,7 @@ def required(requirements_file):
         return [pkg for pkg in requirements
                 if pkg.strip() and not pkg.startswith("#")]
 
-PLUGIN_ENTRY_POINT = 'ovos-PHAL-plugin-sensors=ovos_PHAL_sensors:PHALSensors'
+PLUGIN_ENTRY_POINT = 'ovos-PHAL-sensors=ovos_PHAL_sensors:PHALSensors'
 setup(
     name='ovos-PHAL-sensors',
     version=get_version(),
