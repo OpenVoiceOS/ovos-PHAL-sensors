@@ -1,5 +1,7 @@
 import abc
 import json
+import logging
+import os
 
 import requests
 from ovos_utils.messagebus import FakeBus, Message
@@ -15,6 +17,29 @@ class SensorLogger:
     @abc.abstractmethod
     def binary_sensor_update(cls, sensor):
         pass
+
+
+class FileSensorLogger(SensorLogger):
+    path = os.path.expanduser("~/.local/state/sensors")
+    os.makedirs(path, exist_ok=True)
+    logging.getLogger("urllib3.connectionpool").setLevel("ERROR")
+    logging.basicConfig(filename=f"{path}/readings.log",
+                        filemode='a',
+                        format='%(asctime)s,%(msecs)d %(message)s',
+                        datefmt='%H:%M:%S',
+                        level=logging.DEBUG)
+    logger = logging.getLogger('sensor_reading')
+
+    @classmethod
+    def sensor_update(cls, sensor):
+        from ovos_PHAL_sensors.base import _norm
+        unique_id = _norm(sensor.unique_id)
+        name = _norm(sensor.device_name)
+        cls.logger.info(f"{name}_{unique_id} {sensor.value}")
+
+    @classmethod
+    def binary_sensor_update(cls, sensor):
+        return cls.sensor_update(sensor)
 
 
 class MessageBusLogger(SensorLogger):

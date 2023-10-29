@@ -11,7 +11,7 @@ from ovos_PHAL_sensors.battery import BatterySensor
 from ovos_PHAL_sensors.cpu import CPUCountSensor, \
     CPUTemperatureSensor, CPUUsageSensor
 from ovos_PHAL_sensors.fan import CpuFanSensor, GpuFanSensor
-from ovos_PHAL_sensors.loggers import HomeAssistantUpdater, MessageBusLogger
+from ovos_PHAL_sensors.loggers import HomeAssistantUpdater, MessageBusLogger, FileSensorLogger
 from ovos_PHAL_sensors.memory import SwapTotalSensor, SwapUsageSensor, \
     DiskPercentSensor, DiskTotalSensor, DiskUsageSensor, \
     MemoryTotalSensor, MemoryUsageSensor
@@ -23,7 +23,7 @@ from ovos_PHAL_sensors.procs import SystemdSensor, DBUSDaemonSensor, KDEConnectS
     MiniDLNASensor, UPMPDCliSensor
 from ovos_PHAL_sensors.pulse import PAVersionSensor, PAHostnameSensor, PAPlaybackSensor, PAChannelCountSensor, \
     PADefaultSinkSensor, PADefaultSourceSensor, PANowPlayingSensor, \
-    PABluezActiveSensor, PABluezConnectedSensor
+    PABluezActiveSensor, PABluezConnectedSensor, pulse
 from ovos_PHAL_sensors.screen import ScreenBrightnessSensor
 
 
@@ -32,6 +32,8 @@ class OVOSDevice:
     def __init__(self, name, screen=True, battery=True,
                  memory=True, cpu=True, network=True, fan=True,
                  os=True, apps=True, pa=True):
+        if pulse is None:
+            pa = False
         self.name = name
         self.screen = screen
         self.battery = battery
@@ -48,7 +50,7 @@ class OVOSDevice:
         self._workers = 6
 
     @classmethod
-    def bind(cls, name, ha_url, ha_token, bus=None, disable_bus=False, disable_ha=False):
+    def bind(cls, name, ha_url, ha_token, bus=None, disable_bus=False, disable_ha=False, disable_file_logger=True):
         Sensor.device_name = name
 
         # setup home assistant
@@ -65,6 +67,8 @@ class OVOSDevice:
             HomeAssistantUpdater.ha_token = ha_token
             if not disable_ha:
                 Sensor.bind_logger(HomeAssistantUpdater)
+        if not disable_file_logger:
+            Sensor.bind_logger(FileSensorLogger)
 
         # connect messagebus
         if bus:
@@ -190,7 +194,8 @@ class PHALSensors(PHALPlugin):
         self.sleep = self.config.get("time_between_checks", 5)
         OVOSDevice.bind(self.name, self.ha_url, self.ha_token, self.bus,
                         disable_bus=self.config.get("disable_bus", False),
-                        disable_ha=self.config.get("disable_ha", False))
+                        disable_ha=self.config.get("disable_ha", False),
+                        disable_file_logger=self.config.get("disable_filelog", True))
         self.device = OVOSDevice(self.name,
                                  screen=self.config.get("screen_sensors", True),
                                  battery=self.config.get("battery_sensors", True),

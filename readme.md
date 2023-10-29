@@ -34,6 +34,7 @@ to enable screen sensors `pip install screen-brightness-control `
       "pulseaudio_sensors": true,
       "disable_bus": false,
       "disable_ha": false,
+      "disable_filelog": true,
       "ha_host": "http://192.168.1.8:8123",
       "ha_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiI2NGZmODYxY2M3ZDE0ZDZmODQ5..."
     }
@@ -45,15 +46,17 @@ to enable screen sensors `pip install screen-brightness-control `
 - time_between_checks - time to wait between reading sensors
 - disable_bus - do not emit sensors readings to bus
 - disable_ha - do not emit sensor readings to HA
+- disable_filelog - do not log sensors readings to file
 - ha_host (optional) - home assistant url (default to [ovos-PHAL-plugin-homeassistant](https://github.com/OpenVoiceOS/ovos-PHAL-plugin-homeassistant) if previously configured)
 - ha_token (optional) - home assistant long lived access token (default to [ovos-PHAL-plugin-homeassistant](https://github.com/OpenVoiceOS/ovos-PHAL-plugin-homeassistant) if previously configured)
 
 ## Sensors Loggers
 
-Currently 2 sensor data loggers are provided
+Currently 3 sensor data loggers are provided
 
 - HomeAssistant - if host and token are set the sensors will show up in home assistant
 - Messagebus - sensor readings are emitted as bus messages
+- FileLogger - sensor readings saved to "~/.local/state/sensors/readings.log"
 
 
 ````python
