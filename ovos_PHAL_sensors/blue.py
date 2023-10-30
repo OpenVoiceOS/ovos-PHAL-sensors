@@ -23,8 +23,8 @@ class BluetoothDevicePresence(BooleanSensor):
         return self.present
 
     @property
-    def attrs(cls):
-        return {"friendly_name": cls.unique_id.replace("_", ":").upper() + " Bluetooth",
+    def attrs(self):
+        return {"friendly_name": self.unique_id.replace("_", ":").upper() + " Bluetooth",
                 "icon": "mdi:bluetooth",
                 "device_class": "presence"}
 

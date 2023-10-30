@@ -40,8 +40,8 @@ class CPUTemperatureSensor(NumericSensor):
         return psutil.sensors_temperatures()['coretemp'][0].current
 
     @property
-    def attrs(cls):
-        return {"friendly_name": cls.__name__,
+    def attrs(self):
+        return {"friendly_name": self.__class__.__name__,
                 "unit_of_measurement": "°C"}
 
 

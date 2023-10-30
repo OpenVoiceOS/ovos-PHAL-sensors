@@ -16,10 +16,10 @@ class BatterySensor(PercentageSensor):
         return round(psutil.sensors_battery().percent, 3)
 
     @property
-    def attrs(cls):
-        return {"friendly_name": cls.__name__,
+    def attrs(self):
+        return {"friendly_name": self.__class__.__name__,
                 "device_class": "battery",
-                "unit_of_measurement": cls.unit}
+                "unit_of_measurement": self.unit}
 
 
 if __name__ == "__main__":

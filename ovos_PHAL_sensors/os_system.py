@@ -20,9 +20,9 @@ class BootTimeSensor(NumericSensor):
         return str(psutil.boot_time())
 
     @property
-    def attrs(cls):
-        return {"friendly_name": cls.__name__,
-                "unit_of_measurement": cls.unit,
+    def attrs(self):
+        return {"friendly_name": self.__class__.__name__,
+                "unit_of_measurement": self.unit,
                 "icon": "mdi:timeline-clock"
                 }
 

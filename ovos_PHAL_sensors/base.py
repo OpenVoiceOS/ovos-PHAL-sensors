@@ -33,8 +33,8 @@ class Sensor:
         return None
 
     @property
-    def attrs(cls):
-        return {"friendly_name": cls.__name__,
+    def attrs(self):
+        return {"friendly_name": self.__class__.__name__,
                 "icon": "mdi:alphabetical"
                 }
 
@@ -53,9 +53,9 @@ class NumericSensor(Sensor):
     _slow: bool = False
 
     @property
-    def attrs(cls):
-        return {"friendly_name": cls.__name__,
-                "unit_of_measurement": cls.unit,
+    def attrs(self):
+        return {"friendly_name": self.__class__.__name__,
+                "unit_of_measurement": self.unit,
                 "icon": "mdi:numeric"
                 }
 
@@ -69,9 +69,9 @@ class PercentageSensor(NumericSensor):
         return False
 
     @property
-    def attrs(cls):
-        return {"friendly_name": cls.__name__,
-                "unit_of_measurement": cls.unit,
+    def attrs(self):
+        return {"friendly_name": self.__class__.__name__,
+                "unit_of_measurement": self.unit,
                 "icon": "mdi:percent"
                 }
 
@@ -85,8 +85,8 @@ class BooleanSensor(Sensor):
         return False
 
     @property
-    def attrs(cls):
-        return {"friendly_name": cls.__name__,
+    def attrs(self):
+        return {"friendly_name": self.__class__.__name__,
                 "device_class": "running",
                 "state_color": True}
 

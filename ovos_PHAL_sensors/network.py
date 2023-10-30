@@ -16,8 +16,8 @@ class ExternalIPSensor(Sensor):
         return urllib.request.urlopen('https://api.ipify.org').read().decode('utf8')
 
     @property
-    def attrs(cls):
-        return {"friendly_name": cls.__name__,
+    def attrs(self):
+        return {"friendly_name": self.__class__.__name__,
                 "icon": "mdi:ip"}
 
 
