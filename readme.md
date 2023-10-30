@@ -13,7 +13,9 @@ sensors will have a unique identifier of the format `sensor.ovos_{name}_{sensor_
 
 to enable pulseaudio sensors `pip install pulsectl`
 
-to enable screen sensors `pip install screen-brightness-control `
+to enable screen sensors `pip install screen-brightness-control`
+
+to enable bluetooth sensors `pip install pybluez2`
 
 ## Config
 
@@ -32,6 +34,7 @@ to enable screen sensors `pip install screen-brightness-control `
       "os_sensors": true,
       "apps_sensors": true,
       "pulseaudio_sensors": true,
+      "bluetooth_sensors": true,
       "disable_bus": false,
       "disable_ha": false,
       "disable_filelog": true,
@@ -151,4 +154,10 @@ Fan Sensors
 ```
 CpuFanSensor
 GpuFanSensor
+```
+
+BluetoothSensors
+```
+BluetoothDevicePresence
+BluetoothDeviceName
 ```

@@ -128,7 +128,7 @@ class PAVersionSensor(Sensor):
     _once = True
     _thread_safe: bool = False
 
-    @classproperty
+    @property
     def value(self):
         return pulse.server_info().server_version
 
@@ -140,7 +140,7 @@ class PAChannelCountSensor(NumericSensor):
     _once: bool = True
     _thread_safe: bool = False
 
-    @classproperty
+    @property
     def value(self):
         return pulse.server_info().channel_count
 
@@ -153,7 +153,7 @@ class PADefaultSinkSensor(Sensor):
     _slow: bool = False
     _thread_safe: bool = False
 
-    @classproperty
+    @property
     def value(self):
         return pulse.server_info().default_sink_name
 
@@ -166,7 +166,7 @@ class PADefaultSourceSensor(Sensor):
     _slow: bool = False
     _thread_safe: bool = False
 
-    @classproperty
+    @property
     def value(self):
         return pulse.server_info().default_source_name
 
@@ -178,7 +178,7 @@ class PAHostnameSensor(Sensor):
     _once: bool = True
     _thread_safe: bool = False
 
-    @classproperty
+    @property
     def value(self):
         return pulse.server_info().host_name
 
@@ -189,7 +189,7 @@ class PAPlaybackSensor(BooleanSensor):
     device_name: str = "pulseaudio"
     _thread_safe: bool = False
 
-    @classproperty
+    @property
     def value(self):
         return any(not s.corked for s in pulse.sink_input_list())
 
@@ -201,7 +201,7 @@ class PANowPlayingSensor(Sensor):
     _thread_safe: bool = False
     _slow: bool = False
 
-    @classproperty
+    @property
     def value(self):
         now_playing_str = ""
         for s in pulse.sink_input_list():
@@ -216,7 +216,7 @@ class PABluezConnectedSensor(BooleanSensor):
     device_name: str = "pulseaudio"
     _thread_safe: bool = False
 
-    @classproperty
+    @property
     def value(self):
         for s in pulse.sink_list():
             if s.driver == "module-bluez5-device.c":
@@ -230,7 +230,7 @@ class PABluezActiveSensor(BooleanSensor):
     device_name: str = "pulseaudio"
     _thread_safe: bool = False
 
-    @classproperty
+    @property
     def value(self):
         actives = [s.sink for s in pulse.sink_input_list()
                    if not s.corked]

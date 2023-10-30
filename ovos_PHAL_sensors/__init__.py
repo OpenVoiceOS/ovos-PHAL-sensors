@@ -24,16 +24,21 @@ from ovos_PHAL_sensors.procs import SystemdSensor, DBUSDaemonSensor, KDEConnectS
 from ovos_PHAL_sensors.pulse import PAVersionSensor, PAHostnameSensor, PAPlaybackSensor, PAChannelCountSensor, \
     PADefaultSinkSensor, PADefaultSourceSensor, PANowPlayingSensor, \
     PABluezActiveSensor, PABluezConnectedSensor, pulse
-from ovos_PHAL_sensors.screen import ScreenBrightnessSensor
+from ovos_PHAL_sensors.screen import ScreenBrightnessSensor, sbc
+from ovos_PHAL_sensors.blue import BlueScanner, bluetooth
 
 
 class OVOSDevice:
 
     def __init__(self, name, screen=True, battery=True,
                  memory=True, cpu=True, network=True, fan=True,
-                 os=True, apps=True, pa=True):
+                 os=True, apps=True, pa=True, blue=True):
         if pulse is None:
             pa = False
+        if bluetooth is None:
+            blue = False
+        if sbc is None:
+            screen = False
         self.name = name
         self.screen = screen
         self.battery = battery
@@ -43,6 +48,11 @@ class OVOSDevice:
         self.fan = fan
         self.os = os
         self.apps = apps
+        if blue:
+            self.blue = BlueScanner(daemon=True)
+            self.blue.start()
+        else:
+            self.blue = None
         self.pa = pa
 
         self._readings = {}
@@ -119,8 +129,12 @@ class OVOSDevice:
         if self.fan:
             sensors += [CpuFanSensor(), GpuFanSensor()]
 
+        # inject device name prefix
         for s in sensors:
             s.device_name = f"{self.name}_{s.device_name}"
+
+        if self.blue is not None:
+            sensors += self.blue.sensors
 
         return sensors
 
@@ -205,6 +219,7 @@ class PHALSensors(PHALPlugin):
                                  fan=self.config.get("fan_sensors", True),
                                  os=self.config.get("os_sensors", True),
                                  apps=self.config.get("app_sensors", True),
+                                 blue=self.config.get("bluetooth_sensors", True),
                                  pa=self.config.get("pulseaudio_sensors", True))
 
     def run(self):

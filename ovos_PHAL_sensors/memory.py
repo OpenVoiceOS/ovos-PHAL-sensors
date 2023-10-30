@@ -14,7 +14,7 @@ class DiskTotalSensor(NumericSensor):
     device_name: str = "memory"
     _once: bool = True
 
-    @classproperty
+    @property
     def value(self):
         return shutil.disk_usage("/")[0]
 
@@ -26,7 +26,7 @@ class DiskUsageSensor(NumericSensor):
     device_name: str = "memory"
     _slow: bool = True
 
-    @classproperty
+    @property
     def value(self):
         return shutil.disk_usage("/")[1]
 
@@ -37,7 +37,7 @@ class DiskPercentSensor(PercentageSensor):
     device_name: str = "memory"
     _slow: bool = True
 
-    @classproperty
+    @property
     def value(self):
         return round(DiskUsageSensor().value * 100 / DiskTotalSensor().value, 2)
 
@@ -47,7 +47,7 @@ class MemoryUsageSensor(PercentageSensor):
     unique_id: str = "usage_percent"
     device_name: str = "memory"
 
-    @classproperty
+    @property
     def value(self):
         return psutil.virtual_memory()[2]
 
@@ -59,7 +59,7 @@ class MemoryTotalSensor(NumericSensor):
     device_name: str = "memory"
     _once: bool = True
 
-    @classproperty
+    @property
     def value(self):
         return psutil.virtual_memory()[0]
 
@@ -70,7 +70,7 @@ class SwapUsageSensor(PercentageSensor):
     device_name: str = "memory"
     _slow: bool = True
 
-    @classproperty
+    @property
     def value(self):
         return psutil.swap_memory()[3]
 
@@ -82,7 +82,7 @@ class SwapTotalSensor(NumericSensor):
     device_name: str = "memory"
     _once: bool = True
 
-    @classproperty
+    @property
     def value(self):
         return psutil.swap_memory()[0]
 

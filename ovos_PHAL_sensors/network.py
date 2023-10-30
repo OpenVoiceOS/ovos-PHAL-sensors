@@ -11,11 +11,11 @@ class ExternalIPSensor(Sensor):
     unique_id: str = "external_ip"
     device_name: str = "network"
 
-    @classproperty
+    @property
     def value(self):
         return urllib.request.urlopen('https://api.ipify.org').read().decode('utf8')
 
-    @classproperty
+    @property
     def attrs(cls):
         return {"friendly_name": cls.__name__,
                 "icon": "mdi:ip"}

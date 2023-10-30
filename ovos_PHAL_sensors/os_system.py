@@ -15,11 +15,11 @@ class BootTimeSensor(NumericSensor):
     unit: str = "unix_time"
     _once: bool = True
 
-    @classproperty
+    @property
     def value(self):
         return str(psutil.boot_time())
 
-    @classproperty
+    @property
     def attrs(cls):
         return {"friendly_name": cls.__name__,
                 "unit_of_measurement": cls.unit,
@@ -33,7 +33,7 @@ class OSNameSensor(Sensor):
     device_name: str = "os"
     _once: bool = True
 
-    @classproperty
+    @property
     def value(self):
         return os.name
 
@@ -44,7 +44,7 @@ class OSSystemSensor(Sensor):
     device_name: str = "os"
     _once: bool = True
 
-    @classproperty
+    @property
     def value(self):
         return platform.system()
 
@@ -55,7 +55,7 @@ class ReleaseSensor(Sensor):
     device_name: str = "os"
     _once: bool = True
 
-    @classproperty
+    @property
     def value(self):
         return platform.release()
 
@@ -66,7 +66,7 @@ class MachineSensor(Sensor):
     device_name: str = "os"
     _once: bool = True
 
-    @classproperty
+    @property
     def value(self):
         return platform.machine()
 
@@ -77,7 +77,7 @@ class ArchitectureSensor(Sensor):
     device_name: str = "os"
     _once: bool = True
 
-    @classproperty
+    @property
     def value(self):
         return str(platform.architecture()[0])
 

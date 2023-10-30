@@ -27,7 +27,7 @@ class SystemdSensor(BooleanSensor):
     unique_id: str = "systemd_running"
     device_name: str = "os"
 
-    @classproperty
+    @property
     def value(self):
         return bool(_find_proc("systemd"))
 
@@ -37,7 +37,7 @@ class DBUSDaemonSensor(BooleanSensor):
     unique_id: str = "dbus_daemon_running"
     device_name: str = "os"
 
-    @classproperty
+    @property
     def value(self):
         return bool(_find_proc("dbus-daemon"))
 
@@ -47,7 +47,7 @@ class KDEConnectSensor(BooleanSensor):
     unique_id: str = "kdeconnect_running"
     device_name: str = "os"
 
-    @classproperty
+    @property
     def value(self):
         return bool(_find_proc("kdeconnectd"))
 
@@ -57,7 +57,7 @@ class PulseAudioSensor(BooleanSensor):
     unique_id: str = "pulseaudio_running"
     device_name: str = "os"
 
-    @classproperty
+    @property
     def value(self):
         return bool(_find_proc("pulseaudio"))
 
@@ -67,7 +67,7 @@ class PipewireSensor(BooleanSensor):
     unique_id: str = "pipewire_running"
     device_name: str = "os"
 
-    @classproperty
+    @property
     def value(self):
         return bool(_find_proc("pipewire"))
 
@@ -77,7 +77,7 @@ class PlasmaShellSensor(BooleanSensor):
     unique_id: str = "plasmashell_running"
     device_name: str = "os"
 
-    @classproperty
+    @property
     def value(self):
         return bool(_find_proc("plasmashell"))
 
@@ -87,7 +87,7 @@ class FirefoxSensor(BooleanSensor):
     unique_id: str = "firefox_running"
     device_name: str = "os"
 
-    @classproperty
+    @property
     def value(self):
         return bool(_find_proc("firefox"))
 
@@ -97,7 +97,7 @@ class SpotifySensor(BooleanSensor):
     unique_id: str = "spotify_running"
     device_name: str = "os"
 
-    @classproperty
+    @property
     def value(self):
         p = _find_proc("spotify") or \
             _find_proc("rasspotify") or \
@@ -111,7 +111,7 @@ class MiniDLNASensor(BooleanSensor):
     unique_id: str = "minidlnad_running"
     device_name: str = "os"
 
-    @classproperty
+    @property
     def value(self):
         p = _find_proc("minidlnad")
         return bool(p)
@@ -122,7 +122,7 @@ class UPMPDCliSensor(BooleanSensor):
     unique_id: str = "upmpdcli_running"
     device_name: str = "os"
 
-    @classproperty
+    @property
     def value(self):
         p = _find_proc("upmpdcli")
         return bool(p)

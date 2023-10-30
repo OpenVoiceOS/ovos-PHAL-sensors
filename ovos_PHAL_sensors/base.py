@@ -28,11 +28,11 @@ class Sensor:
     def bind_logger(cls, logger: SensorLogger):
         cls.loggers.append(logger)
 
-    @classproperty
+    @property
     def value(self):
         return None
 
-    @classproperty
+    @property
     def attrs(cls):
         return {"friendly_name": cls.__name__,
                 "icon": "mdi:alphabetical"
@@ -52,7 +52,7 @@ class NumericSensor(Sensor):
     unit: str = "number"
     _slow: bool = False
 
-    @classproperty
+    @property
     def attrs(cls):
         return {"friendly_name": cls.__name__,
                 "unit_of_measurement": cls.unit,
@@ -64,11 +64,11 @@ class NumericSensor(Sensor):
 class PercentageSensor(NumericSensor):
     unit: str = "%"
 
-    @classproperty
+    @property
     def value(self):
         return False
 
-    @classproperty
+    @property
     def attrs(cls):
         return {"friendly_name": cls.__name__,
                 "unit_of_measurement": cls.unit,
@@ -80,11 +80,11 @@ class PercentageSensor(NumericSensor):
 class BooleanSensor(Sensor):
     unit: str = "bool"
 
-    @classproperty
+    @property
     def value(self):
         return False
 
-    @classproperty
+    @property
     def attrs(cls):
         return {"friendly_name": cls.__name__,
                 "device_class": "running",
@@ -105,7 +105,7 @@ class BusSensor(Sensor):
     def bind(cls, bus):
         cls.bus = bus
 
-    @classproperty
+    @property
     def value(self):
         return False
 

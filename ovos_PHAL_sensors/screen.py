@@ -15,7 +15,7 @@ class ScreenBrightnessSensor(PercentageSensor):
     unique_id: str = "brightness_percent"
     device_name: str = "screen"
 
-    @classproperty
+    @property
     def value(self):
         if sbc is not None:
             return sbc.get_brightness()[0]

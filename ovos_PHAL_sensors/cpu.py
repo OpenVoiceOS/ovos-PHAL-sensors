@@ -14,7 +14,7 @@ class CPUCountSensor(NumericSensor):
     device_name: str = "cpu"
     _once: bool = True
 
-    @classproperty
+    @property
     def value(self):
         return os.cpu_count()
 
@@ -24,7 +24,7 @@ class CPUUsageSensor(PercentageSensor):
     unique_id: str = "usage_percent"
     device_name: str = "cpu"
 
-    @classproperty
+    @property
     def value(self):
         return psutil.cpu_percent(1)
 
@@ -35,11 +35,11 @@ class CPUTemperatureSensor(NumericSensor):
     unique_id: str = "temperature"
     device_name: str = "cpu"
 
-    @classproperty
+    @property
     def value(self):
         return psutil.sensors_temperatures()['coretemp'][0].current
 
-    @classproperty
+    @property
     def attrs(cls):
         return {"friendly_name": cls.__name__,
                 "unit_of_measurement": "°C"}

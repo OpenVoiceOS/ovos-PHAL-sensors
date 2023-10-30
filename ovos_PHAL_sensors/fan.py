@@ -11,7 +11,7 @@ class CpuFanSensor(PercentageSensor):
     unique_id: str = "cpu_fan_percent"
     device_name: str = "fan"
 
-    @classproperty
+    @property
     def value(self):
         for label, fans in psutil.sensors_fans().items():
             for f in fans:
@@ -25,7 +25,7 @@ class GpuFanSensor(PercentageSensor):
     unique_id: str = "gpu_fan_percent"
     device_name: str = "fan"
 
-    @classproperty
+    @property
     def value(self):
         for label, fans in psutil.sensors_fans().items():
             for f in fans:
