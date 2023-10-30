@@ -23,7 +23,7 @@ from ovos_PHAL_sensors.procs import SystemdSensor, DBUSDaemonSensor, KDEConnectS
     MiniDLNASensor, UPMPDCliSensor
 from ovos_PHAL_sensors.pulse import PAVersionSensor, PAHostnameSensor, PAPlaybackSensor, PAChannelCountSensor, \
     PADefaultSinkSensor, PADefaultSourceSensor, PANowPlayingSensor, \
-    PABluezActiveSensor, PABluezConnectedSensor, pulse
+    PABluezActiveSensor, PABluezConnectedSensor, PAAudioPlayingSensor, pulse
 from ovos_PHAL_sensors.screen import ScreenBrightnessSensor, sbc
 from ovos_PHAL_sensors.blue import BlueScanner, bluetooth
 
@@ -94,7 +94,7 @@ class OVOSDevice:
         if self.pa:
             sensors += [PAHostnameSensor(), PAVersionSensor(), PAChannelCountSensor(),
                         PAPlaybackSensor(), PABluezActiveSensor(), PABluezConnectedSensor(),
-                        PANowPlayingSensor(),
+                        PANowPlayingSensor(), PAAudioPlayingSensor(),
                         PADefaultSourceSensor(), PADefaultSinkSensor()]
         if self.os:
             sensors += [OSNameSensor(), OSSystemSensor(),

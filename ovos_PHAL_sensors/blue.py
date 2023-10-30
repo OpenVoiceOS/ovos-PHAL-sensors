@@ -5,6 +5,7 @@ from threading import Thread, Event
 from ovos_utils import flatten_list
 
 from ovos_PHAL_sensors.base import BooleanSensor, Sensor, _norm
+from ovos_PHAL_sensors.pulse import pa_bluez_sinks, pulse
 
 try:
     import bluetooth
@@ -45,13 +46,31 @@ class BluetoothDeviceName(Sensor):
                 "icon": "mdi:bluetooth"}
 
 
+@dataclasses.dataclass
+class BluetoothSpeakerConnected(Sensor):
+    connected: bool = False
+    unique_id: str = "pulseaudio"
+    device_name: str = "bluetooth"
+
+    @property
+    def value(self):
+        return self.connected
+
+    @property
+    def attrs(self):
+        return {"friendly_name": self.unique_id.replace("_connected", "").replace("_", ":").upper() + " Connected",
+                "icon": "mdi:bluetooth",
+                "device_class": "running",
+                "state_color": True}
+
+
 class BlueScanner(Thread):
     def __init__(self, daemon=True):
         super().__init__(daemon=daemon)
         self.last_seen = {}
         self.lose_time = 60
         self.running = Event()
-        self.time_between_scans = 60
+        self.time_between_scans = 30
         self._sensors = {}
 
     @property
@@ -65,6 +84,20 @@ class BlueScanner(Thread):
             self.scan_devices()
             Event().wait(self.time_between_scans)
 
+    def scan_speakers(self):
+        if pulse is not None:
+            for sink in pa_bluez_sinks():
+                mac = sink["name"].split("bluez_sink.")[-1].split(".a2dp_sink")[0]
+                a = _norm(mac)
+                self.last_seen[a] = time.time()
+                if a not in self._sensors:
+                    self._sensors[a] = [BluetoothDevicePresence(present=True, unique_id=a),
+                                        BluetoothDeviceName(friendly_name=sink["description"], unique_id=a + "_name"),
+                                        BluetoothSpeakerConnected(connected=True, unique_id=a + "_connected")]
+                else:
+                    self._sensors[a][-1].connected = True
+                yield self._sensors[a][-1]
+
     def scan_devices(self):
         if bluetooth is None:
             print("pip install pybluez2 to scan bluetooth devices")
@@ -74,11 +107,14 @@ class BlueScanner(Thread):
         except OSError:  # seems to happen on turn bluetooth off
             nearby_devices = []
         for addr, name in nearby_devices:
-            self.last_seen[addr] = time.time()
-            self._sensors[addr] = [BluetoothDevicePresence(present=True,
-                                                           unique_id=_norm(addr.replace(":", "_"))),
-                                   BluetoothDeviceName(friendly_name=name,
-                                                       unique_id=_norm(addr.replace(":", "_")) + "_name")]
+            a = _norm(addr.replace(":", "_"))
+            self.last_seen[a] = time.time()
+            if a in self._sensors:
+                self._sensors[a].present = True
+            else:
+                self._sensors[a] = [BluetoothDevicePresence(present=True, unique_id=a),
+                                    BluetoothDeviceName(friendly_name=name, unique_id=a + "_name"),
+                                    BluetoothSpeakerConnected(connected=False, unique_id=a + "_connected")]
 
         n = time.time()
         for dev, ts in self.last_seen.items():

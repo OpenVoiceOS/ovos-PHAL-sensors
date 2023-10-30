@@ -7,9 +7,7 @@ except:
 
 from dataclasses import dataclass
 
-from ovos_utils import classproperty
-
-from ovos_PHAL_sensors.base import BooleanSensor, Sensor, NumericSensor
+from ovos_PHAL_sensors.base import BooleanSensor, Sensor, NumericSensor, _norm
 
 
 def pa_list_cards():
@@ -211,6 +209,18 @@ class PANowPlayingSensor(Sensor):
 
 
 @dataclass
+class PAAudioPlayingSensor(BooleanSensor):
+    unique_id: str = "is_playing"
+    device_name: str = "pulseaudio"
+    _thread_safe: bool = False
+    _slow: bool = False
+
+    @property
+    def value(self):
+        return bool(PANowPlayingSensor().value)
+
+
+@dataclass
 class PABluezConnectedSensor(BooleanSensor):
     unique_id: str = "bluez_connected"
     device_name: str = "pulseaudio"
@@ -242,15 +252,17 @@ class PABluezActiveSensor(BooleanSensor):
 
 
 if __name__ == "__main__":
-    print(PAVersionSensor())
-    print(PAChannelCountSensor())
-    print(PADefaultSinkSensor())
-    print(PADefaultSourceSensor())
-    print(PAHostnameSensor())
-    print(PAPlaybackSensor())
-    print(PANowPlayingSensor())
-    print(PABluezConnectedSensor())
-    print(PABluezActiveSensor())
+    print(PAVersionSensor().value)
+    print(PAChannelCountSensor().value)
+    print(PADefaultSinkSensor().value)
+    print(PADefaultSourceSensor().value)
+    print(PAHostnameSensor().value)
+    print(PAPlaybackSensor().value)
+    print(PANowPlayingSensor().value)
+    print(PAAudioPlayingSensor().value)
+    print(PABluezConnectedSensor().value)
+    print(PABluezActiveSensor().value)
+
     # pa_version(16.1, string)
     # pa_channel_count(2, number)
     # pa_default_sink(alsa_output.pci-0000_00_1f.3.analog-stereo, string)

@@ -91,6 +91,7 @@ PABluezConnectedSensor
 PANowPlayingSensor
 PADefaultSourceSensor
 PADefaultSinkSensor
+PAAudioPlayingSensor
 ```
 
 OS Info
@@ -160,4 +161,5 @@ BluetoothSensors
 ```
 BluetoothDevicePresence
 BluetoothDeviceName
+BluetoothSpeakerConnected
 ```
