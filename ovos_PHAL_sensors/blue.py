@@ -35,6 +35,7 @@ class BluetoothDeviceName(Sensor):
     friendly_name: str = ""
     unique_id: str = "bluez"
     device_name: str = "bluetooth"
+    _once: bool = True
 
     @property
     def value(self):
@@ -51,6 +52,7 @@ class BluetoothSpeakerConnected(Sensor):
     connected: bool = False
     unique_id: str = "pulseaudio"
     device_name: str = "bluetooth"
+    _slow: bool = False
 
     @property
     def value(self):
@@ -65,13 +67,14 @@ class BluetoothSpeakerConnected(Sensor):
 
 
 class BlueScanner(Thread):
-    def __init__(self, daemon=True):
+    def __init__(self, daemon=True, device_name=""):
         super().__init__(daemon=daemon)
         self.last_seen = {}
         self.lose_time = 60
         self.running = Event()
         self.time_between_scans = 30
         self._sensors = {}
+        self.dev_name = device_name
 
     @property
     def sensors(self):
@@ -81,22 +84,40 @@ class BlueScanner(Thread):
     def run(self) -> None:
         self.running.set()
         while self.running.is_set():
+
+            cons = self.scan_speakers()
+
+            n = time.time()
+            for dev, ts in self.last_seen.items():
+                if n - ts > self.lose_time:
+                    self._sensors[dev][0].present = False
+                if dev not in cons:
+                    self._sensors[dev][-1].connected = False
+
             self.scan_devices()
             Event().wait(self.time_between_scans)
 
     def scan_speakers(self):
+        connect = []
         if pulse is not None:
             for sink in pa_bluez_sinks():
                 mac = sink["name"].split("bluez_sink.")[-1].split(".a2dp_sink")[0]
                 a = _norm(mac)
                 self.last_seen[a] = time.time()
                 if a not in self._sensors:
+                    speaker_dev = a + "_connected"
+                    if self.name:
+                        # only added to BluetoothSpeakerConnected
+                        # other sensors dont depend on device doing the scanning
+                        speaker_dev = _norm(self.name) + "_" + speaker_dev
+
                     self._sensors[a] = [BluetoothDevicePresence(present=True, unique_id=a),
                                         BluetoothDeviceName(friendly_name=sink["description"], unique_id=a + "_name"),
-                                        BluetoothSpeakerConnected(connected=True, unique_id=a + "_connected")]
+                                        BluetoothSpeakerConnected(connected=True, unique_id=speaker_dev)]
                 else:
                     self._sensors[a][-1].connected = True
-                yield self._sensors[a][-1]
+                connect.append(self._sensors[a][-1])
+        return connect
 
     def scan_devices(self):
         if bluetooth is None:
@@ -110,18 +131,13 @@ class BlueScanner(Thread):
             a = _norm(addr.replace(":", "_"))
             self.last_seen[a] = time.time()
             if a in self._sensors:
-                self._sensors[a].present = True
+                self._sensors[a][0].present = True
             else:
                 self._sensors[a] = [BluetoothDevicePresence(present=True, unique_id=a),
                                     BluetoothDeviceName(friendly_name=name, unique_id=a + "_name"),
                                     BluetoothSpeakerConnected(connected=False, unique_id=a + "_connected")]
 
-        n = time.time()
-        for dev, ts in self.last_seen.items():
-            if self._sensors[dev][0].present and n - ts > self.lose_time:
-                self._sensors[dev][0].present = False
-
 
 if __name__ == "__main__":
-    b = BlueScanner(daemon=False)
+    b = BlueScanner(daemon=False, device_name="pc_do_miro")
     b.start()

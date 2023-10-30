@@ -10,10 +10,15 @@ from ovos_PHAL_sensors.base import Sensor
 class ExternalIPSensor(Sensor):
     unique_id: str = "external_ip"
     device_name: str = "network"
+    _ip = "0.0.0.0"
 
     @property
     def value(self):
-        return urllib.request.urlopen('https://api.ipify.org').read().decode('utf8')
+        try:
+            self._ip = urllib.request.urlopen('https://api.ipify.org').read().decode('utf8')
+        except:
+            pass
+        return self._ip
 
     @property
     def attrs(self):

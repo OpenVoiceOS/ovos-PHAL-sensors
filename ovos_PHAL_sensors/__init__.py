@@ -25,7 +25,7 @@ from ovos_PHAL_sensors.pulse import PAVersionSensor, PAHostnameSensor, PAPlaybac
     PADefaultSinkSensor, PADefaultSourceSensor, PANowPlayingSensor, \
     PABluezActiveSensor, PABluezConnectedSensor, PAAudioPlayingSensor, pulse
 from ovos_PHAL_sensors.screen import ScreenBrightnessSensor, sbc
-from ovos_PHAL_sensors.blue import BlueScanner, bluetooth
+from ovos_PHAL_sensors.blue import BlueScanner, bluetooth, BluetoothSpeakerConnected
 
 
 class OVOSDevice:
@@ -49,7 +49,7 @@ class OVOSDevice:
         self.os = os
         self.apps = apps
         if blue:
-            self.blue = BlueScanner(daemon=True)
+            self.blue = BlueScanner(daemon=True, device_name=name)
             self.blue.start()
         else:
             self.blue = None
@@ -133,6 +133,7 @@ class OVOSDevice:
         for s in sensors:
             s.device_name = f"{self.name}_{s.device_name}"
 
+        # no inject device name, sensors managed by bluescanner
         if self.blue is not None:
             sensors += self.blue.sensors
 
