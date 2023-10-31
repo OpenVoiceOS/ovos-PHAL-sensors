@@ -37,7 +37,12 @@ class CPUTemperatureSensor(NumericSensor):
 
     @property
     def value(self):
-        return psutil.sensors_temperatures()['coretemp'][0].current
+        temps = psutil.sensors_temperatures()
+        if "coretemp" in temps:  # x86
+            return temps['coretemp'][0].current
+        if "cpu_thermal" in temps:  # rpi
+            return temps['cpu_thermal'][0].current
+        return 0
 
     @property
     def attrs(self):
