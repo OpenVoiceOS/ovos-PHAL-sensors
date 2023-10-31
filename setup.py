@@ -49,6 +49,7 @@ def required(requirements_file):
         return [pkg for pkg in requirements
                 if pkg.strip() and not pkg.startswith("#")]
 
+
 PLUGIN_ENTRY_POINT = 'ovos-PHAL-sensors=ovos_PHAL_sensors:PHALSensors'
 setup(
     name='ovos-PHAL-sensors',
@@ -71,5 +72,9 @@ setup(
         'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
     ],
-    entry_points={'ovos.plugin.phal': PLUGIN_ENTRY_POINT}
+    entry_points={'ovos.plugin.phal': PLUGIN_ENTRY_POINT,
+                  'console_scripts': [
+                      'ovos-sensors=ovos_PHAL_sensors.__main__:standalone_launch'
+                  ]
+    }
 )

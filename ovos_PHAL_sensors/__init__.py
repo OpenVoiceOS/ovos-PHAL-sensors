@@ -39,6 +39,7 @@ class OVOSDevice:
             blue = False
         if sbc is None:
             screen = False
+        # TODO - if is_docker -> disable apps
         self.name = name
         self.screen = screen
         self.battery = battery
@@ -231,14 +232,3 @@ class PHALSensors(PHALPlugin):
             Event().wait(self.sleep)
 
 
-if __name__ == "__main__":
-    from ovos_utils.messagebus import FakeBus
-    from ovos_utils import wait_for_exit_signal
-
-    config = {
-        "name": "pc_do_miro",
-        "ha_host": "http://192.168.1.8:8123",
-        "ha_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiI2NGZmODYxY2M3ZDE0ZDZmODQ5MTMxNDgwODAyMmRmMiIsImlhdCI6MTY5ODM3ODk3NSwiZXhwIjoyMDEzNzM4OTc1fQ.PKPbyAw5dYPxZaLexy_Ed_U3OYRJeZI4DOKPljmE3Ow"
-    }
-    sensor = PHALSensors(bus=FakeBus(), config=config)
-    wait_for_exit_signal()
