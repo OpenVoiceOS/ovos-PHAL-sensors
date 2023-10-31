@@ -1,8 +1,6 @@
 import dataclasses
 
 import psutil
-from ovos_utils import classproperty
-
 from ovos_PHAL_sensors.base import PercentageSensor
 
 
@@ -13,7 +11,10 @@ class BatterySensor(PercentageSensor):
 
     @property
     def value(self):
-        return round(psutil.sensors_battery().percent, 3)
+        battery = psutil.sensors_battery()
+        if battery is None:
+            return 0
+        return round(battery.percent, 3)
 
     @property
     def attrs(self):
