@@ -2,9 +2,8 @@ import dataclasses
 import os
 
 import psutil
-from ovos_utils import classproperty
 
-from ovos_PHAL_sensors.base import NumericSensor, PercentageSensor
+from ovos_PHAL_sensors.sensors.base import NumericSensor, PercentageSensor
 
 
 @dataclasses.dataclass

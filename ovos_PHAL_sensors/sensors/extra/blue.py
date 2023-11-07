@@ -4,8 +4,8 @@ from threading import Thread, Event
 
 from ovos_utils import flatten_list
 
-from ovos_PHAL_sensors.base import BooleanSensor, Sensor, _norm
-from ovos_PHAL_sensors.pulse import pa_bluez_sinks, pulse
+from ovos_PHAL_sensors.sensors.base import BooleanSensor, Sensor, _norm
+from ovos_PHAL_sensors.sensors.extra.pulse import pa_bluez_sinks, pulse
 
 try:
     import bluetooth
@@ -18,6 +18,7 @@ class BluetoothDevicePresence(BooleanSensor):
     present: bool = False
     unique_id: str = "bluez"
     device_name: str = "bluetooth"
+    _allow_prefix: bool = False
 
     @property
     def value(self):
@@ -36,6 +37,7 @@ class BluetoothDeviceName(Sensor):
     unique_id: str = "bluez"
     device_name: str = "bluetooth"
     _once: bool = True
+    _allow_prefix: bool = False
 
     @property
     def value(self):

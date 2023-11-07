@@ -3,9 +3,8 @@ import os
 import platform
 
 import psutil
-from ovos_utils import classproperty
 
-from ovos_PHAL_sensors.base import Sensor, NumericSensor
+from ovos_PHAL_sensors.sensors.base import Sensor, NumericSensor
 
 
 @dataclasses.dataclass

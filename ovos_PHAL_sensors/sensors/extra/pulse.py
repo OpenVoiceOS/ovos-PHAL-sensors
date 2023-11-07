@@ -1,13 +1,12 @@
+from dataclasses import dataclass
+
+from ovos_PHAL_sensors.sensors.base import BooleanSensor, Sensor, NumericSensor
+
 try:
     import pulsectl
-
     pulse = pulsectl.Pulse('ovos')
 except:
     pulse = None
-
-from dataclasses import dataclass
-
-from ovos_PHAL_sensors.base import BooleanSensor, Sensor, NumericSensor, _norm
 
 
 def pa_list_cards():

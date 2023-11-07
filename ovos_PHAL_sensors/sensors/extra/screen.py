@@ -1,8 +1,6 @@
 import dataclasses
 
-from ovos_utils import classproperty
-
-from ovos_PHAL_sensors.base import PercentageSensor
+from ovos_PHAL_sensors.sensors.base import PercentageSensor
 
 try:
     import screen_brightness_control as sbc

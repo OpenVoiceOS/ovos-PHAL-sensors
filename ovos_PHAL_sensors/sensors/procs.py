@@ -3,9 +3,8 @@ import os
 from dataclasses import dataclass
 
 import psutil
-from ovos_utils import classproperty
 
-from ovos_PHAL_sensors.base import BooleanSensor
+from ovos_PHAL_sensors.sensors.base import BooleanSensor
 
 
 def get_procs():

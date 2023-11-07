@@ -3,10 +3,7 @@ import string
 from dataclasses import dataclass
 from typing import Optional, Any
 
-from ovos_utils import classproperty
 from unidecode import unidecode
-
-from ovos_PHAL_sensors.loggers import SensorLogger
 
 
 def _norm(s):
@@ -22,10 +19,11 @@ class Sensor:
     _once: bool = False  # read on launch only
     _slow: bool = True  # cool down period of 15 mins
     _thread_safe: bool = True
+    _allow_prefix: bool = True
     loggers = []
 
     @classmethod
-    def bind_logger(cls, logger: SensorLogger):
+    def bind_logger(cls, logger):
         cls.loggers.append(logger)
 
     @property
