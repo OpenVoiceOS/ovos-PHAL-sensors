@@ -33,7 +33,7 @@ class OVOSDevice(BaseDevice):
 
     def __init__(self, name, screen=True, battery=True,
                  memory=True, cpu=True, network=True, fan=True,
-                 os=True, apps=True, pa=True, blue=True, wifi=True):
+                 os=True, apps=True, pa=True, blue=True, wifi=False):
         if pulse is None:
             pa = False
         if bluetooth is None:
@@ -122,14 +122,17 @@ class PHALSensors(PHALPlugin):
         self.sleep = self.config.get("time_between_checks", 5)
         OVOSDevice.bind(self.name, self.ha_url, self.ha_token, self.bus,
                         disable_bus=self.config.get("disable_bus", False),
-                        disable_ha=self.config.get("disable_ha", False),
-                        disable_file_logger=self.config.get("disable_filelog", True))
+                        disable_ha=self.config.get("disable_ha", True),
+                        disable_mqtt=self.config.get("disable_mqtt", False),
+                        disable_file_logger=self.config.get("disable_filelog", True),
+                        mqtt_config=self.config.get("mqtt_config") or {})
         self.device = OVOSDevice(self.name,
                                  screen=self.config.get("screen_sensors", True),
                                  battery=self.config.get("battery_sensors", True),
                                  cpu=self.config.get("cpu_sensors", True),
                                  memory=self.config.get("memory_sensors", True),
                                  network=self.config.get("network_sensors", True),
+                                 wifi=self.config.get("wifi_sensors", False),
                                  fan=self.config.get("fan_sensors", True),
                                  os=self.config.get("os_sensors", True),
                                  apps=self.config.get("app_sensors", True),

@@ -2,6 +2,7 @@ ovos-plugin-manager~=0.0
 psutil
 requests
 unidecode
-# pybluez2
-# pulsectl
-# screen-brightness-control
+#pybluez2
+#pulsectl
+#screen-brightness-control
+#ha-mqtt-discoverable

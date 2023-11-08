@@ -7,6 +7,7 @@ from ovos_config import Configuration
 
 from ovos_PHAL_sensors.loggers import MessageBusLogger, FileSensorLogger
 from ovos_PHAL_sensors.loggers.ha_http import HomeAssistantUpdater
+from ovos_PHAL_sensors.loggers.ha_mqtt import MQTTUpdater
 from ovos_PHAL_sensors.sensors.base import Sensor, BusSensor
 
 
@@ -16,15 +17,22 @@ class BaseDevice:
 
     def __init__(self, name, prefix=True):
         self.name = name
-        self._readings = {}
         self._ts = {}
         self._workers = 6
         self.prefix = prefix
 
     @classmethod
     def bind(cls, name, ha_url, ha_token, bus=None,
-             disable_bus=False, disable_ha=False, disable_file_logger=True):
+             disable_bus=False,
+             disable_ha=True,
+             disable_file_logger=True,
+             disable_mqtt=True,
+             mqtt_config=None):
         Sensor.device_name = name
+        if not mqtt_config:
+            disable_mqtt = True
+        if not bus:
+            disable_bus = True
 
         # setup home assistant
         if not ha_token or not ha_url:  # check HA plugin config
@@ -40,8 +48,30 @@ class BaseDevice:
             HomeAssistantUpdater.ha_token = ha_token
             if not disable_ha:
                 Sensor.bind_logger(HomeAssistantUpdater)
+
+        # setup file logs
         if not disable_file_logger:
             Sensor.bind_logger(FileSensorLogger)
+
+        # connect to mqtt
+        if mqtt_config and not disable_mqtt:
+            from ha_mqtt_discoverable import Settings
+            # host: str
+            # port: Optional[int] = 1883
+            # username: Optional[str] = None
+            # password: Optional[str] = None
+            # client_name: Optional[str] = None
+            # tls_key: Optional[str] = None
+            # tls_certfile: Optional[str] = None
+            # tls_ca_cert: Optional[str] = None
+            #
+            # discovery_prefix: str = "homeassistant"
+            # """The root of the topic tree where HA is listening for messages"""
+            # state_prefix: str = "hmd"
+            # """The root of the topic tree ha-mqtt-discovery publishes its state messages"""
+            MQTTUpdater.bind_device(name,
+                                    Settings.MQTT(**mqtt_config))
+            Sensor.bind_logger(MQTTUpdater)
 
         # connect messagebus
         if bus:
@@ -65,8 +95,6 @@ class BaseDevice:
             matchers = {}
             # create a unique wrapper for each worker with their arguments
             for sensor in self.sensors:
-                if self.prefix and sensor._allow_prefix:
-                    sensor.device_name = f"{self.name}_{sensor.device_name}"
 
                 if sensor._thread_safe:
                     def do_thing(u=sensor):
@@ -93,10 +121,11 @@ class BaseDevice:
     def update(self):
 
         def get_reading(sensor):
-            if sensor.unique_id not in self._readings:
-                self._readings[sensor.unique_id] = sensor.value
+            if self.prefix and sensor._allow_prefix and not sensor.device_name.startswith(f"{self.name}_"):
+                sensor.device_name = f"{self.name}_{sensor.device_name}"
+
+            if sensor.unique_id not in self._ts:
                 self._ts[sensor.unique_id] = time.time()
-                old = None
             else:
                 if sensor._once:
                     # print("skipping", sensor.unique_id)
@@ -104,13 +133,11 @@ class BaseDevice:
                 if sensor._slow and time.time() - self._ts[sensor.unique_id] < 15 * 60:
                     # print("skipping", sensor.unique_id)
                     return  # track timestamp and do once/hour
-                old = self._readings[sensor.unique_id]
 
-            if old is None or old != sensor.value:
-                try:
-                    sensor.sensor_update()
-                    self._ts[sensor.unique_id] = time.time()
-                except Exception as e:
-                    print(e)
+            try:
+                sensor.sensor_update()
+                self._ts[sensor.unique_id] = time.time()
+            except Exception as e:
+                print(e)
 
         self._parallel_readings(get_reading)

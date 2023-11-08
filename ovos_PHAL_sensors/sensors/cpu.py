@@ -8,7 +8,7 @@ from ovos_PHAL_sensors.sensors.base import NumericSensor, PercentageSensor
 
 @dataclasses.dataclass
 class CPUCountSensor(NumericSensor):
-    unit: str = "number"
+    unit: str = ""
     unique_id: str = "count"
     device_name: str = "cpu"
     _once: bool = True
@@ -46,6 +46,7 @@ class CPUTemperatureSensor(NumericSensor):
     @property
     def attrs(self):
         return {"friendly_name": self.__class__.__name__,
+                "device_class": "temperature",
                 "unit_of_measurement": "°C"}
 
 
