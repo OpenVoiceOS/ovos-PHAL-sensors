@@ -3,11 +3,12 @@
 Expose sensor data from your OVOS device to various systems
 
 - Messagebus events
-- Home Assistant (http sensors)
+- Home Assistant
+- MQTT
 
 sensors will have a unique identifier of the format `sensor.ovos_{name}_{sensor_id}`
 
-![imagem](https://github.com/OpenVoiceOS/ovos-PHAL-sensors/assets/33701864/57ed6731-f6ec-4b23-8dc6-8d49fae7203f)
+![imagem](https://github.com/OpenVoiceOS/ovos-PHAL-sensors/assets/33701864/c13e694c-1b3d-4cb1-bae6-5c851560b135)
 
 ## Dependencies
 
