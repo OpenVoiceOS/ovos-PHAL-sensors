@@ -1,5 +1,9 @@
 # Changelog
 
+## [V0.0.0a16](https://github.com/OpenVoiceOS/ovos-PHAL-sensors/tree/V0.0.0a16) (2023-11-08)
+
+[Full Changelog](https://github.com/OpenVoiceOS/ovos-PHAL-sensors/compare/V0.0.0a15...V0.0.0a16)
+
 ## [V0.0.0a15](https://github.com/OpenVoiceOS/ovos-PHAL-sensors/tree/V0.0.0a15) (2023-11-07)
 
 [Full Changelog](https://github.com/OpenVoiceOS/ovos-PHAL-sensors/compare/V0.0.0a14...V0.0.0a15)
