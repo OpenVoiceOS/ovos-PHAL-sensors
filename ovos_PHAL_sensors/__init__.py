@@ -8,7 +8,8 @@ from ovos_PHAL_sensors.device import BaseDevice
 from ovos_PHAL_sensors.loggers import MessageBusLogger, FileSensorLogger
 from ovos_PHAL_sensors.loggers.ha_http import HomeAssistantUpdater
 from ovos_PHAL_sensors.sensors.base import Sensor, BusSensor
-from ovos_PHAL_sensors.sensors.battery import BatterySensor
+from ovos_PHAL_sensors.sensors.battery import BatterySensor, BatteryPowerSensor, BatteryStatusSensor, \
+    BatteryChargeSensor, BatteryCurrentSensor, BatteryVoltageSensor, BatteryStoredEnergySensor
 from ovos_PHAL_sensors.sensors.cpu import CPUCountSensor, \
     CPUTemperatureSensor, CPUUsageSensor
 from ovos_PHAL_sensors.sensors.extra.blue import BlueScanner, bluetooth
@@ -97,7 +98,9 @@ class OVOSDevice(BaseDevice):
         if self.screen:
             sensors += [ScreenBrightnessSensor()]
         if self.battery:
-            sensors += [BatterySensor()]
+            sensors += [BatterySensor(), BatteryChargeSensor(), BatteryCurrentSensor(),
+                        BatteryStoredEnergySensor(),
+                        BatteryPowerSensor(), BatteryStatusSensor(), BatteryVoltageSensor()]
         if self.fan:
             sensors += [CpuFanSensor(), GpuFanSensor()]
 

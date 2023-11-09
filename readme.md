@@ -171,6 +171,12 @@ ScreenBrightnessSensor
 Battery Sensors
 ```
 BatterySensor
+BatteryChargeSensor
+BatteryCurrentSensor
+BatteryStoredEnergySensor
+BatteryPowerSensor
+BatteryStatusSensor
+BatteryVoltageSensor
 ```
 
 Fan Sensors
