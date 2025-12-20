@@ -1,4 +1,4 @@
-ovos-plugin-manager~=0.0
+ovos-plugin-manager~=2.1
 psutil
 requests
 unidecode
