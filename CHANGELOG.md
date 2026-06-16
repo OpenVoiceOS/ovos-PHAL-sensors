@@ -1,5 +1,20 @@
 # Changelog
 
+## [0.0.0a18](https://github.com/OpenVoiceOS/ovos-PHAL-sensors/tree/0.0.0a18) (2026-06-16)
+
+[Full Changelog](https://github.com/OpenVoiceOS/ovos-PHAL-sensors/compare/V0.0.0a17...0.0.0a18)
+
+**Merged pull requests:**
+
+- chore: add missing shared CI workflows [\#13](https://github.com/OpenVoiceOS/ovos-PHAL-sensors/pull/13) ([JarbasAl](https://github.com/JarbasAl))
+- Update dependency ovos-plugin-manager to v2 [\#10](https://github.com/OpenVoiceOS/ovos-PHAL-sensors/pull/10) ([renovate[bot]](https://github.com/apps/renovate))
+- Update dependency python to 3.14 [\#4](https://github.com/OpenVoiceOS/ovos-PHAL-sensors/pull/4) ([renovate[bot]](https://github.com/apps/renovate))
+- Configure Renovate [\#3](https://github.com/OpenVoiceOS/ovos-PHAL-sensors/pull/3) ([renovate[bot]](https://github.com/apps/renovate))
+
+## [V0.0.0a17](https://github.com/OpenVoiceOS/ovos-PHAL-sensors/tree/V0.0.0a17) (2023-11-09)
+
+[Full Changelog](https://github.com/OpenVoiceOS/ovos-PHAL-sensors/compare/V0.0.0a16...V0.0.0a17)
+
 ## [V0.0.0a16](https://github.com/OpenVoiceOS/ovos-PHAL-sensors/tree/V0.0.0a16) (2023-11-08)
 
 [Full Changelog](https://github.com/OpenVoiceOS/ovos-PHAL-sensors/compare/V0.0.0a15...V0.0.0a16)
