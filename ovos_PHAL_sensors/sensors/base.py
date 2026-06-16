@@ -3,11 +3,11 @@ import string
 from dataclasses import dataclass
 from typing import Optional, Any
 
-from unidecode import unidecode
+from anyascii import anyascii
 
 
 def _norm(s):
-    s = unidecode(s.lower().strip().replace(" ", "_").replace("-", "").replace(".", "_"))
+    s = anyascii(s.lower().strip().replace(" ", "_").replace("-", "").replace(".", "_"))
     return "".join([_ for _ in s if _ in string.ascii_letters + string.digits + "_"])
 
 

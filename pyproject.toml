@@ -1,0 +1,35 @@
+[build-system]
+requires = ["setuptools>=61", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ovos-PHAL-sensors"
+dynamic = ["version"]
+description = "Expose OVOS device sensors to IOT frameworks"
+readme = "readme.md"
+license = {text = "Apache-2.0"}
+authors = [
+    {name = "JarbasAi", email = "jarbasai@mailfence.com"}
+]
+dependencies = [
+    "ovos-plugin-manager>=2.1.0,<3.0.0",
+    "psutil",
+    "requests",
+    "anyascii"
+]
+
+[project.urls]
+Homepage = "https://github.com/OpenVoiceOS/ovos-PHAL-sensors"
+
+[project.scripts]
+ovos-sensors = "ovos_PHAL_sensors.__main__:standalone_launch"
+
+[project.entry-points."opm.phal"]
+"ovos-PHAL-sensors" = "ovos_PHAL_sensors:PHALSensors"
+
+[tool.setuptools.dynamic]
+version = {attr = "ovos_PHAL_sensors.version.__version__"}
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["ovos_PHAL_sensors*"]

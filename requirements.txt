@@ -1,8 +1,0 @@
-ovos-plugin-manager~=2.1
-psutil
-requests
-unidecode
-#pybluez2
-#pulsectl
-#screen-brightness-control
-#ha-mqtt-discoverable
