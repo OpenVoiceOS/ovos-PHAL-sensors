@@ -12,7 +12,7 @@ authors = [
     {name = "JarbasAi", email = "jarbasai@mailfence.com"}
 ]
 dependencies = [
-    "ovos-plugin-manager~=2.1",
+    "ovos-plugin-manager>=2.1.0,<3.0.0",
     "psutil",
     "requests",
     "unidecode"
