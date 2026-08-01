@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.0.0a19](https://github.com/OpenVoiceOS/ovos-PHAL-sensors/tree/0.0.0a19) (2026-08-01)
+
+[Full Changelog](https://github.com/OpenVoiceOS/ovos-PHAL-sensors/compare/0.0.0a18...0.0.0a19)
+
+**Merged pull requests:**
+
+- docs: rewrite README in Simplified Technical English [\#14](https://github.com/OpenVoiceOS/ovos-PHAL-sensors/pull/14) ([JarbasAl](https://github.com/JarbasAl))
+
 ## [0.0.0a18](https://github.com/OpenVoiceOS/ovos-PHAL-sensors/tree/0.0.0a18) (2026-06-16)
 
 [Full Changelog](https://github.com/OpenVoiceOS/ovos-PHAL-sensors/compare/V0.0.0a17...0.0.0a18)
