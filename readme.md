@@ -1,25 +1,27 @@
 # PHAL Sensors
 
-Expose sensor data from your OVOS device to various systems
+This plugin reads sensor data from an OVOS device and sends it to other systems. It supports three outputs:
 
 - Messagebus events
 - Home Assistant
 - MQTT
 
-sensors will have a unique identifier of the format `sensor.ovos_{name}_{sensor_id}`
+Each sensor gets a unique identifier in the format `sensor.ovos_{name}_{sensor_id}`.
 
 ![imagem](https://github.com/OpenVoiceOS/ovos-PHAL-sensors/assets/33701864/c13e694c-1b3d-4cb1-bae6-5c851560b135)
 
-## Dependencies
+## Install
 
-to enable pulseaudio sensors `pip install pulsectl`
+```bash
+pip install ovos-PHAL-sensors
+```
 
-to enable screen sensors `pip install screen-brightness-control`
+Some sensors need extra packages:
 
-to enable bluetooth sensors `pip install pybluez2`
-
-to enable MQTT sensor logger `pip install ha-mqtt-discoverable`
-
+- pulseaudio sensors: `pip install pulsectl`
+- screen sensors: `pip install screen-brightness-control`
+- bluetooth sensors: `pip install pybluez2`
+- the MQTT sensor logger: `pip install ha-mqtt-discoverable`
 
 ## Config
 
@@ -50,14 +52,14 @@ to enable MQTT sensor logger `pip install ha-mqtt-discoverable`
 }
 ```
 
-- name - the device name the sensors belong to
-- time_between_checks - time to wait between reading sensors
-- disable_bus - do not emit sensors readings to bus
-- disable_ha - do not emit sensor readings to HA
-- disable_filelog - do not log sensors readings to file
-- ha_host (optional) - home assistant url (default to [ovos-PHAL-plugin-homeassistant](https://github.com/OpenVoiceOS/ovos-PHAL-plugin-homeassistant) if previously configured)
-- ha_token (optional) - home assistant long lived access token (default to [ovos-PHAL-plugin-homeassistant](https://github.com/OpenVoiceOS/ovos-PHAL-plugin-homeassistant) if previously configured)
-- mqtt_config (optional) 
+- `name`: the device name the sensors belong to
+- `time_between_checks`: time to wait between sensor readings
+- `disable_bus`: set to `true` to stop sending readings to the messagebus
+- `disable_ha`: set to `true` to stop sending readings to Home Assistant
+- `disable_filelog`: set to `true` to stop logging readings to a file
+- `ha_host` (optional): the Home Assistant URL. Defaults to the host set in [ovos-PHAL-plugin-homeassistant](https://github.com/OpenVoiceOS/ovos-PHAL-plugin-homeassistant), if configured there.
+- `ha_token` (optional): the Home Assistant long-lived access token. Defaults to the token set in [ovos-PHAL-plugin-homeassistant](https://github.com/OpenVoiceOS/ovos-PHAL-plugin-homeassistant), if configured there.
+- `mqtt_config` (optional):
 ```
         host: str
         port: Optional[int] = 1883
@@ -74,14 +76,14 @@ to enable MQTT sensor logger `pip install ha-mqtt-discoverable`
         """The root of the topic tree ha-mqtt-discovery publishes its state messages"""
 ```
 
-## Sensors Loggers
+## Sensor loggers
 
-Currently 4 sensor data loggers are provided
+The plugin ships four sensor data loggers:
 
-- HomeAssistant HTTP - if host and token are set the sensors will show up in home assistant
-- Messagebus - sensor readings are emitted as bus messages
-- FileLogger - sensor readings saved to "~/.local/state/sensors/readings.log"
-- MQTT - send readings to MQTT (Home Assistant compatible, **use instead of HA logger**)
+- HomeAssistant HTTP: sends readings to Home Assistant when `ha_host` and `ha_token` are set
+- Messagebus: emits readings as bus messages
+- FileLogger: saves readings to `~/.local/state/sensors/readings.log`
+- MQTT: sends readings to MQTT, compatible with Home Assistant. Use this instead of the HA logger.
 
 ````python
 Message("ovos.phal.sensor",
@@ -191,3 +193,12 @@ BluetoothDevicePresence
 BluetoothDeviceName
 BluetoothSpeakerConnected
 ```
+
+## Related projects
+
+- [ovos-PHAL-plugin-homeassistant](https://github.com/OpenVoiceOS/ovos-PHAL-plugin-homeassistant): the Home Assistant integration this plugin can report readings to
+- [OVOS-PHAL](https://github.com/OpenVoiceOS/ovos-PHAL): the platform abstraction layer this plugin runs under
+
+## License
+
+Apache-2.0
