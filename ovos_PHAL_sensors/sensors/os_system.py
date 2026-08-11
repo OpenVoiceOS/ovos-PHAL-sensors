@@ -1,6 +1,7 @@
 import dataclasses
 import os
 import platform
+import time
 
 import psutil
 
@@ -81,6 +82,40 @@ class ArchitectureSensor(Sensor):
         return str(platform.architecture()[0])
 
 
+@dataclasses.dataclass
+class UptimeSensor(NumericSensor):
+    unit: str = "s"
+    unique_id: str = "uptime"
+    device_name: str = "os"
+
+    @property
+    def value(self):
+        return round(time.time() - psutil.boot_time())
+
+    @property
+    def attrs(self):
+        return {"friendly_name": self.__class__.__name__,
+                "unit_of_measurement": self.unit,
+                "icon": "mdi:clock-outline"}
+
+
+@dataclasses.dataclass
+class ProcessCountSensor(NumericSensor):
+    unit: str = "number"
+    unique_id: str = "process_count"
+    device_name: str = "os"
+
+    @property
+    def value(self):
+        return len(psutil.pids())
+
+    @property
+    def attrs(self):
+        return {"friendly_name": self.__class__.__name__,
+                "unit_of_measurement": self.unit,
+                "icon": "mdi:format-list-numbered"}
+
+
 if __name__ == "__main__":
     print(ArchitectureSensor())
     print(BootTimeSensor())
@@ -88,6 +123,8 @@ if __name__ == "__main__":
     print(OSSystemSensor())
     print(MachineSensor())
     print(ReleaseSensor())
+    print(UptimeSensor())
+    print(ProcessCountSensor())
 
     # architecture(64bit, string)
     # boot_time(1698249467.0, unix_time)

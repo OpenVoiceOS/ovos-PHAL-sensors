@@ -149,6 +149,8 @@ BootTimeSensor
 ReleaseSensor
 MachineSensor
 ArchitectureSensor
+UptimeSensor
+ProcessCountSensor
 ```
 
 Running Applications
@@ -174,6 +176,8 @@ SwapTotalSensor
 DiskUsageSensor
 DiskPercentSensor
 DiskTotalSensor
+DiskReadBytesSensor
+DiskWriteBytesSensor
 ```
 
 CPU Usage
@@ -181,12 +185,26 @@ CPU Usage
 CPUTemperatureSensor
 CPUUsageSensor
 CPUCountSensor
+CPUFrequencySensor
+LoadAverage1Sensor
+LoadAverage5Sensor
+LoadAverage15Sensor
+```
+
+Raspberry Pi throttling (only when `vcgencmd` is present)
+```
+ThrottleStateSensor
+UnderVoltageSensor
+ThrottledSensor
 ```
 
 Network Sensors
 ```
 LocalIPSensor
 ExternalIPSensor
+NetworkBytesSentSensor
+NetworkBytesRecvSensor
+WifiSignalSensor
 ```
 
 Screen Sensors

@@ -50,9 +50,11 @@ def test_each_category_flag_independently_gates_its_sensors():
 
     # network on, everything else off
     device = _all_disabled_device(network=True)
-    from ovos_PHAL_sensors.sensors.network import ExternalIPSensor, LocalIPSensor
+    from ovos_PHAL_sensors.sensors.network import ExternalIPSensor, LocalIPSensor, \
+        NetworkBytesSentSensor, NetworkBytesRecvSensor, WifiSignalSensor
     classes = {type(s) for s in device.sensors}
-    assert classes == {ExternalIPSensor, LocalIPSensor}
+    assert classes == {ExternalIPSensor, LocalIPSensor, NetworkBytesSentSensor,
+                        NetworkBytesRecvSensor, WifiSignalSensor}
 
 
 def test_optional_hardware_sensors_absent_when_deps_missing():

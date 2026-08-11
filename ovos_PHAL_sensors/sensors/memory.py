@@ -86,6 +86,48 @@ class SwapTotalSensor(NumericSensor):
         return round(psutil.swap_memory()[0] / 1024 ** 2, 3)
 
 
+@dataclasses.dataclass
+class DiskReadBytesSensor(NumericSensor):
+    unit: str = "MB"
+    unique_id: str = "disk_read_bytes"
+    device_name: str = "memory"
+
+    @property
+    def value(self):
+        counters = psutil.disk_io_counters()
+        if counters is None:
+            return 0
+        return round(counters.read_bytes / 1024 ** 2, 3)
+
+    @property
+    def attrs(self):
+        return {"friendly_name": self.__class__.__name__,
+                "unit_of_measurement": self.unit,
+                "state_class": "total_increasing",
+                "icon": "mdi:disc-player"}
+
+
+@dataclasses.dataclass
+class DiskWriteBytesSensor(NumericSensor):
+    unit: str = "MB"
+    unique_id: str = "disk_write_bytes"
+    device_name: str = "memory"
+
+    @property
+    def value(self):
+        counters = psutil.disk_io_counters()
+        if counters is None:
+            return 0
+        return round(counters.write_bytes / 1024 ** 2, 3)
+
+    @property
+    def attrs(self):
+        return {"friendly_name": self.__class__.__name__,
+                "unit_of_measurement": self.unit,
+                "state_class": "total_increasing",
+                "icon": "mdi:content-save"}
+
+
 if __name__ == "__main__":
     print(DiskTotalSensor())
     print(DiskUsageSensor())
@@ -96,6 +138,9 @@ if __name__ == "__main__":
 
     print(SwapTotalSensor())
     print(SwapUsageSensor())
+
+    print(DiskReadBytesSensor())
+    print(DiskWriteBytesSensor())
 
     # disk_total(1006662447104, MB)
     # disk_usage(897607532544, MB)

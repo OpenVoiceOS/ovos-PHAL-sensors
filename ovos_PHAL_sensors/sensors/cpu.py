@@ -50,10 +50,70 @@ class CPUTemperatureSensor(NumericSensor):
                 "unit_of_measurement": "°C"}
 
 
+@dataclasses.dataclass
+class CPUFrequencySensor(NumericSensor):
+    unit: str = "MHz"
+    unique_id: str = "frequency"
+    device_name: str = "cpu"
+
+    @property
+    def value(self):
+        freq = psutil.cpu_freq()
+        if freq is None or freq.current is None:
+            return 0
+        return freq.current
+
+
+@dataclasses.dataclass
+class LoadAverage1Sensor(NumericSensor):
+    unit: str = "load"
+    unique_id: str = "load_average_1"
+    device_name: str = "cpu"
+
+    @property
+    def value(self):
+        try:
+            return os.getloadavg()[0]
+        except OSError:
+            return 0
+
+
+@dataclasses.dataclass
+class LoadAverage5Sensor(NumericSensor):
+    unit: str = "load"
+    unique_id: str = "load_average_5"
+    device_name: str = "cpu"
+
+    @property
+    def value(self):
+        try:
+            return os.getloadavg()[1]
+        except OSError:
+            return 0
+
+
+@dataclasses.dataclass
+class LoadAverage15Sensor(NumericSensor):
+    unit: str = "load"
+    unique_id: str = "load_average_15"
+    device_name: str = "cpu"
+
+    @property
+    def value(self):
+        try:
+            return os.getloadavg()[2]
+        except OSError:
+            return 0
+
+
 if __name__ == "__main__":
     print(CPUCountSensor())
     print(CPUUsageSensor())
     print(CPUTemperatureSensor())
+    print(CPUFrequencySensor())
+    print(LoadAverage1Sensor())
+    print(LoadAverage5Sensor())
+    print(LoadAverage15Sensor())
     # cpu_count(16, number)
     # cpu_percent(1.7, %)
     # cpu_temperature(39.0, °C)
