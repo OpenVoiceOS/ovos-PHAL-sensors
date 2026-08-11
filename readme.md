@@ -1,10 +1,16 @@
 # PHAL Sensors
 
-This plugin reads sensor data from an OVOS device and sends it to other systems. It supports three outputs:
+Read hardware and OS sensors from an OVOS device — CPU, memory, disk, temperature,
+fans, battery, network, running apps and more — and publish them.
 
-- Messagebus events
-- Home Assistant
-- MQTT
+**The OVOS messagebus is the always-on output.** With a plain install the plugin
+emits every reading on the bus as `ovos.phal.sensor` / `ovos.phal.binary_sensor`,
+with no extra dependencies. Any OVOS component can subscribe to those messages to
+show device diagnostics.
+
+Home Assistant (REST and MQTT) and a file log are **optional** integrations,
+enabled in config and installed as extras. They are never required — importing or
+running the plugin never pulls their dependencies.
 
 Each sensor gets a unique identifier in the format `sensor.ovos_{name}_{sensor_id}`.
 
@@ -16,12 +22,19 @@ Each sensor gets a unique identifier in the format `sensor.ovos_{name}_{sensor_i
 pip install ovos-PHAL-sensors
 ```
 
-Some sensors need extra packages:
+That is all the bus output needs. Optional integrations and hardware sensors pull
+extra packages — install only the ones you use:
 
-- pulseaudio sensors: `pip install pulsectl`
-- screen sensors: `pip install screen-brightness-control`
-- bluetooth sensors: `pip install pybluez2`
-- the MQTT sensor logger: `pip install ha-mqtt-discoverable`
+```bash
+pip install ovos-PHAL-sensors[ha]          # Home Assistant REST logger (requests)
+pip install ovos-PHAL-sensors[mqtt]        # Home Assistant MQTT discovery (ha-mqtt-discoverable)
+pip install ovos-PHAL-sensors[pulse]       # PulseAudio sensors (pulsectl)
+pip install ovos-PHAL-sensors[bluetooth]   # Bluetooth presence sensors (pybluez2)
+pip install ovos-PHAL-sensors[screen]      # screen brightness (screen-brightness-control)
+pip install ovos-PHAL-sensors[extras]      # everything above
+```
+
+A sensor whose extra is not installed is simply skipped; the bus output keeps working.
 
 ## Config
 
@@ -76,30 +89,41 @@ Some sensors need extra packages:
         """The root of the topic tree ha-mqtt-discovery publishes its state messages"""
 ```
 
-## Sensor loggers
+## Bus API (always on)
 
-The plugin ships four sensor data loggers:
-
-- HomeAssistant HTTP: sends readings to Home Assistant when `ha_host` and `ha_token` are set
-- Messagebus: emits readings as bus messages
-- FileLogger: saves readings to `~/.local/state/sensors/readings.log`
-- MQTT: sends readings to MQTT, compatible with Home Assistant. Use this instead of the HA logger.
+Every reading is emitted on the OVOS messagebus. This is the default, dependency-free
+output and the one other OVOS components should consume. Numeric and string readings
+go out as `ovos.phal.sensor`; on/off readings as `ovos.phal.binary_sensor`:
 
 ````python
 Message("ovos.phal.sensor",
-         {"state": sensor.value,
-          "sensor_id": f"{name}_{unique_id}",
-          "device_name": name,
-          "name": unique_id,
-          "attributes": sensor.attrs})
+         {"state": sensor.value,           # the reading (number / string)
+          "sensor_id": f"{name}_{unique_id}",  # stable id, e.g. "mydevice_cpu_temperature"
+          "device_name": name,             # the configured device name
+          "name": unique_id,               # the sensor's own id, e.g. "temperature"
+          "attributes": sensor.attrs})     # unit_of_measurement, icon, device_class, ...
 
 Message("ovos.phal.binary_sensor",
-         {"state": sensor.value,
+         {"state": sensor.value,           # bool
           "sensor_id": f"{name}_{unique_id}",
           "device_name": name,
           "name": unique_id,
           "attributes": sensor.attrs})
 ````
+
+Readings are **pushed** on the configured `time_between_checks` cadence — there is no
+request/response topic. A consumer subscribes to both topics and keeps the latest
+value per `sensor_id`. Set `disable_bus: true` only if you want to turn this off.
+
+## Optional integrations
+
+Beyond the always-on bus output, readings can also be forwarded to:
+
+- **Home Assistant (REST)** — enable with `disable_ha: false` and set `ha_host`/`ha_token`. Needs the `[ha]` extra.
+- **Home Assistant (MQTT discovery)** — enable by setting `mqtt_config`. Needs the `[mqtt]` extra. Use this *or* the REST logger, not both.
+- **File log** — enable with `disable_filelog: false`; writes to `~/.local/state/sensors/readings.log`.
+
+All three are off by default and their dependencies load only when enabled.
 
 ## Sensors
 

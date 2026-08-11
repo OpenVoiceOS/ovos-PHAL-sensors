@@ -4,6 +4,7 @@ import time
 from typing import List
 
 from ovos_config import Configuration
+from ovos_utils.log import LOG
 
 from ovos_PHAL_sensors.loggers import MessageBusLogger, FileSensorLogger
 from ovos_PHAL_sensors.loggers.ha_http import HomeAssistantUpdater
@@ -20,6 +21,8 @@ class BaseDevice:
         self._ts = {}
         self._workers = 6
         self.prefix = prefix
+        self._fail_counts = {}
+        self._disabled_sensors = set()
 
     @classmethod
     def bind(cls, name, ha_url, ha_token, bus=None,
@@ -89,12 +92,17 @@ class BaseDevice:
     def _parallel_readings(self, do_reading):
         results = {}
 
+        # the sensors property may rebuild instances on every access
+        # (eg. OVOSDevice caches its own list), read it once per update
+        # cycle instead of twice
+        sensors = self.sensors
+
         # do the work in parallel instead of sequentially
         with concurrent.futures.ThreadPoolExecutor(max_workers=self._workers) as executor:
 
             matchers = {}
             # create a unique wrapper for each worker with their arguments
-            for sensor in self.sensors:
+            for sensor in sensors:
 
                 if sensor._thread_safe:
                     def do_thing(u=sensor):
@@ -113,7 +121,7 @@ class BaseDevice:
                 future.result()
 
         # do sequential read for non thread safe sensors
-        for sensor in self.sensors:
+        for sensor in sensors:
             if not sensor._thread_safe:
                 do_reading(sensor)
         return results
@@ -121,6 +129,9 @@ class BaseDevice:
     def update(self):
 
         def get_reading(sensor):
+            if sensor.unique_id in self._disabled_sensors:
+                return  # too many consecutive failures, gave up on this one
+
             if self.prefix and sensor._allow_prefix and not sensor.device_name.startswith(f"{self.name}_"):
                 sensor.device_name = f"{self.name}_{sensor.device_name}"
 
@@ -137,7 +148,14 @@ class BaseDevice:
             try:
                 sensor.sensor_update()
                 self._ts[sensor.unique_id] = time.time()
-            except Exception as e:
-                print(e)
+                self._fail_counts[sensor.unique_id] = 0
+            except Exception:
+                LOG.exception(f"sensor {sensor.unique_id} failed")
+                fails = self._fail_counts.get(sensor.unique_id, 0) + 1
+                self._fail_counts[sensor.unique_id] = fails
+                if fails >= 3:
+                    self._disabled_sensors.add(sensor.unique_id)
+                    LOG.warning(f"sensor {sensor.unique_id} failed {fails} times in a row, "
+                               f"disabling it for the rest of this run")
 
         self._parallel_readings(get_reading)

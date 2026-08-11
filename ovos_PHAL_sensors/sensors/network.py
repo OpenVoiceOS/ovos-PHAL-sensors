@@ -1,6 +1,8 @@
 import dataclasses
 import socket
-import urllib
+import urllib.request
+
+from ovos_utils.log import LOG
 
 from ovos_PHAL_sensors.sensors.base import Sensor
 
@@ -39,9 +41,10 @@ class ExternalIPSensor(Sensor):
     @property
     def value(self):
         try:
-            self._ip = urllib.request.urlopen('https://api.ipify.org').read().decode('utf8')
-        except:
-            pass
+            self._ip = urllib.request.urlopen('https://api.ipify.org',
+                                              timeout=5).read().decode('utf8')
+        except Exception as e:
+            LOG.debug(f"failed to fetch external ip: {e}")
         return self._ip
 
     @property

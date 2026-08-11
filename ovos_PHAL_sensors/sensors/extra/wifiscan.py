@@ -32,22 +32,37 @@ class ESSIDSensor(Sensor):
         return self.ssid
 
 
-def scan_wifi(site_id):
+def scan_wifi(site_id, timeout=15):
     sensors = []
+    addr = None
+    sig = None
+    unit = ""
+    ssid = None
     # TODO - needs sudo, run as root...
-    out = subprocess.check_output("iwlist scan".split(), stderr=subprocess.PIPE).decode("utf-8")
+    try:
+        out = subprocess.check_output("iwlist scan".split(), stderr=subprocess.PIPE,
+                                      timeout=timeout).decode("utf-8")
+    except (subprocess.CalledProcessError, subprocess.TimeoutExpired):
+        return sensors
     for l in out.split("\n"):
         l = l.strip()
         if "- Address: " in l:
             addr = l.split("- Address: ")[-1]
         if "Signal level=" in l:
-            sig, unit = l.split("Signal level=")[-1].split(" ")
+            try:
+                sig, unit = l.split("Signal level=")[-1].split(" ")
+                sig = int(sig)
+            except ValueError:
+                sig = None
+                unit = ""
         if "ESSID:" in l:
             ssid = l.split("ESSID:")[-1][1:-1]
+            if addr is None or sig is None:
+                continue
             sensors += [
                 SignalLevelSensor(unique_id=f"{_norm(addr.replace(':', '_'))}_signal_level",
                                   device_name="wifi_" + site_id,
-                                  unit=unit, level=int(sig)),
+                                  unit=unit, level=sig),
                 ESSIDSensor(device_name="wifi_" + _norm(addr.replace(':', '_')), ssid=ssid)
             ]
     return sensors

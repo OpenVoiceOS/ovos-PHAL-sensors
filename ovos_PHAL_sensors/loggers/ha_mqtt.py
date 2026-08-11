@@ -1,10 +1,15 @@
 import platform
 
-from ha_mqtt_discoverable import Settings, DeviceInfo
-from ha_mqtt_discoverable.sensors import BinarySensor, BinarySensorInfo, Sensor, SensorInfo
+from ovos_utils.log import LOG
 
 from ovos_PHAL_sensors.loggers.base import SensorLogger
 from ovos_PHAL_sensors.sensors.base import _norm
+
+# ``ha_mqtt_discoverable`` (and its paho-mqtt dependency) is an OPTIONAL extra,
+# pulled only by ``pip install ovos-PHAL-sensors[mqtt]``. It is imported lazily
+# inside the methods below so that merely importing this module — which happens
+# whenever the plugin loads — never requires it. The native OVOS bus logger is
+# the always-on path and has no such dependency.
 
 
 class MQTTUpdater(SensorLogger):
@@ -13,7 +18,9 @@ class MQTTUpdater(SensorLogger):
     device_info = None
 
     @classmethod
-    def bind_device(cls, name, mqtt_settings: Settings.MQTT):
+    def bind_device(cls, name, mqtt_settings):
+        from ha_mqtt_discoverable import DeviceInfo
+
         cls.mqtt_settings = mqtt_settings
         cls.device_info = DeviceInfo(name=name,
                                      identifiers=[_norm(name)],
@@ -24,15 +31,13 @@ class MQTTUpdater(SensorLogger):
 
     @classmethod
     def binary_sensor_update(cls, sensor):
+        from ha_mqtt_discoverable import Settings
+        from ha_mqtt_discoverable.sensors import BinarySensor, BinarySensorInfo
+
         sensor_info = BinarySensorInfo(**cls._get_kwargs(sensor))
-
         settings = Settings(mqtt=cls.mqtt_settings, entity=sensor_info)
-
-        # Instantiate the sensor
         s = BinarySensor(settings)
-        print(s)
-
-        # Change the state of the sensor, publishing an MQTT message that gets picked up by HA
+        # Publish an MQTT message HA picks up via discovery.
         if sensor.value:
             s.on()
         else:
@@ -40,15 +45,13 @@ class MQTTUpdater(SensorLogger):
 
     @classmethod
     def sensor_update(cls, sensor):
+        from ha_mqtt_discoverable import Settings
+        from ha_mqtt_discoverable.sensors import Sensor, SensorInfo
 
         sensor_info = SensorInfo(**cls._get_kwargs(sensor))
-
         settings = Settings(mqtt=cls.mqtt_settings, entity=sensor_info)
-
-        # Instantiate the sensor
         s = Sensor(settings)
         s.set_state(sensor.value)
-        print(s, sensor.value)
 
     @classmethod
     def _get_kwargs(cls, sensor):

@@ -2,7 +2,8 @@ import abc
 import logging
 import os
 
-from ovos_utils.messagebus import FakeBus, Message
+from ovos_bus_client.message import Message
+from ovos_utils.fakebus import FakeBus
 
 from ovos_PHAL_sensors.sensors.base import _norm
 
@@ -21,17 +22,25 @@ class SensorLogger:
 
 class FileSensorLogger(SensorLogger):
     path = os.path.expanduser("~/.local/state/sensors")
-    os.makedirs(path, exist_ok=True)
-    logging.getLogger("urllib3.connectionpool").setLevel("ERROR")
-    logging.basicConfig(filename=f"{path}/readings.log",
-                        filemode='a',
-                        format='%(asctime)s,%(msecs)d %(message)s',
-                        datefmt='%H:%M:%S',
-                        level=logging.DEBUG)
-    logger = logging.getLogger('sensor_reading')
+    logger = None
+
+    @classmethod
+    def init(cls):
+        if cls.logger is not None:
+            return
+        os.makedirs(cls.path, exist_ok=True)
+        logger = logging.getLogger('ovos_phal_sensors.readings')
+        logger.setLevel(logging.DEBUG)
+        logger.propagate = False
+        handler = logging.FileHandler(f"{cls.path}/readings.log")
+        handler.setFormatter(logging.Formatter('%(asctime)s,%(msecs)d %(message)s',
+                                               datefmt='%H:%M:%S'))
+        logger.addHandler(handler)
+        cls.logger = logger
 
     @classmethod
     def sensor_update(cls, sensor):
+        cls.init()
         unique_id = _norm(sensor.unique_id)
         name = _norm(sensor.device_name)
         cls.logger.info(f"{name}_{unique_id} {sensor.value}")

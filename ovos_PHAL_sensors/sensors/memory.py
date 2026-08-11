@@ -15,7 +15,7 @@ class DiskTotalSensor(NumericSensor):
 
     @property
     def value(self):
-        return shutil.disk_usage("/")[0]
+        return round(shutil.disk_usage("/")[0] / 1024 ** 2, 3)
 
 
 @dataclasses.dataclass
@@ -27,7 +27,7 @@ class DiskUsageSensor(NumericSensor):
 
     @property
     def value(self):
-        return shutil.disk_usage("/")[1]
+        return round(shutil.disk_usage("/")[1] / 1024 ** 2, 3)
 
 
 @dataclasses.dataclass
@@ -60,7 +60,7 @@ class MemoryTotalSensor(NumericSensor):
 
     @property
     def value(self):
-        return psutil.virtual_memory()[0]
+        return round(psutil.virtual_memory()[0] / 1024 ** 2, 3)
 
 
 @dataclasses.dataclass
@@ -83,7 +83,7 @@ class SwapTotalSensor(NumericSensor):
 
     @property
     def value(self):
-        return psutil.swap_memory()[0]
+        return round(psutil.swap_memory()[0] / 1024 ** 2, 3)
 
 
 if __name__ == "__main__":

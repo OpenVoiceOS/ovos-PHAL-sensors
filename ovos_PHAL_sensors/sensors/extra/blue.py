@@ -3,9 +3,10 @@ import time
 from threading import Thread, Event
 
 from ovos_utils import flatten_list
+from ovos_utils.log import LOG
 
 from ovos_PHAL_sensors.sensors.base import BooleanSensor, Sensor, _norm
-from ovos_PHAL_sensors.sensors.extra.pulse import pa_bluez_sinks, pulse
+from ovos_PHAL_sensors.sensors.extra.pulse import pa_bluez_sinks, pulse, _get_pulse
 
 try:
     import bluetooth
@@ -83,6 +84,9 @@ class BlueScanner(Thread):
         sensors = [s for s in self._sensors.values()]
         return flatten_list(sensors)
 
+    def stop(self):
+        self.running.clear()
+
     def run(self) -> None:
         self.running.set()
         while self.running.is_set():
@@ -102,7 +106,10 @@ class BlueScanner(Thread):
     def scan_speakers(self):
         connect = []
         if pulse is not None:
-            for sink in pa_bluez_sinks():
+            # own pulse client, kept separate from the global one to avoid
+            # cross-thread pulsectl corruption (this runs in its own thread)
+            client = _get_pulse("ovos-blue")
+            for sink in pa_bluez_sinks(client=client):
                 mac = sink["name"].split("bluez_sink.")[-1].split(".a2dp_sink")[0]
                 a = _norm(mac)
                 self.last_seen[a] = time.time()
@@ -123,10 +130,11 @@ class BlueScanner(Thread):
 
     def scan_devices(self):
         if bluetooth is None:
-            print("pip install pybluez2 to scan bluetooth devices")
+            LOG.debug("pip install pybluez2 to scan bluetooth devices")
             return
         try:
-            nearby_devices = bluetooth.discover_devices(lookup_names=True)
+            nearby_devices = bluetooth.discover_devices(lookup_names=True,
+                                                         duration=8)
         except OSError:  # seems to happen on turn bluetooth off
             nearby_devices = []
         for addr, name in nearby_devices:

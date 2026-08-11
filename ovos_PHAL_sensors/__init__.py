@@ -4,7 +4,6 @@ from typing import List
 from ovos_plugin_manager.templates.phal import PHALPlugin
 
 from ovos_PHAL_sensors.device import BaseDevice
-from ovos_PHAL_sensors.device import BaseDevice
 from ovos_PHAL_sensors.loggers import MessageBusLogger, FileSensorLogger
 from ovos_PHAL_sensors.loggers.ha_http import HomeAssistantUpdater
 from ovos_PHAL_sensors.sensors.base import Sensor, BusSensor
@@ -148,3 +147,10 @@ class PHALSensors(PHALPlugin):
         while self.running:
             self.device.update()
             Event().wait(self.sleep)
+
+    def shutdown(self):
+        self.running = False
+        device = getattr(self, "device", None)
+        if device is not None and device.blue is not None:
+            device.blue.stop()
+        super().shutdown()
