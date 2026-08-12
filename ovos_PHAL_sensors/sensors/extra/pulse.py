@@ -1,17 +1,42 @@
+import atexit
 from dataclasses import dataclass
 
 from ovos_PHAL_sensors.sensors.base import BooleanSensor, Sensor, NumericSensor
 
 try:
     import pulsectl
-    pulse = pulsectl.Pulse('ovos')
-except:
-    pulse = None
+except ImportError:
+    pulsectl = None
+
+# ``pulsectl`` is an OPTIONAL extra, pulled only by ``pip install
+# ovos-PHAL-sensors[pulse]``. The client is opened lazily on first use via
+# ``_get_pulse`` instead of at import time, so importing this module never
+# talks to PulseAudio nor requires the dependency to be installed.
+pulse = None if pulsectl is None else True  # kept for `pulse is None` checks elsewhere
+_pulse_clients = {}
+
+
+def _get_pulse(name="ovos"):
+    """lazily create (and cache) a pulsectl.Pulse client for `name`"""
+    if pulsectl is None:
+        return None
+    if name not in _pulse_clients:
+        client = pulsectl.Pulse(name)
+        _pulse_clients[name] = client
+
+        def _close(c=client):
+            try:
+                c.close()
+            except Exception:
+                pass
+
+        atexit.register(_close)
+    return _pulse_clients[name]
 
 
 def pa_list_cards():
     sinks = []
-
+    pulse = _get_pulse()
     for s in pulse.card_list():
         sinks.append({
             "index": s.index,
@@ -26,7 +51,7 @@ def pa_list_cards():
 
 def pa_list_sources():
     sinks = []
-
+    pulse = _get_pulse()
     for s in pulse.source_list():
         volumes = [v * 100 for v in s.volume.__dict__["values"]]
 
@@ -47,7 +72,7 @@ def pa_list_sources():
 
 def pa_list_sinks():
     sinks = []
-
+    pulse = _get_pulse()
     for s in pulse.sink_list():
         volumes = [v * 100 for v in s.volume.__dict__["values"]]
 
@@ -68,6 +93,7 @@ def pa_list_sinks():
 
 def pa_list_input_sinks():
     sinks = []
+    pulse = _get_pulse()
     for s in pulse.sink_input_list():
         volumes = [v * 100 for v in s.volume.__dict__["values"]]
         sinks.append({
@@ -89,13 +115,14 @@ def pa_list_input_sinks():
 
 
 def pa_active_sinks():
+    pulse = _get_pulse()
     return [str(s.sink) for s in pulse.sink_input_list()
             if not s.corked]
 
 
-def pa_bluez_sinks():
+def pa_bluez_sinks(client=None):
     sinks = []
-
+    pulse = client or _get_pulse()
     for s in pulse.sink_list():
         if s.driver != "module-bluez5-device.c":
             continue
@@ -122,12 +149,12 @@ def pa_bluez_sinks():
 class PAVersionSensor(Sensor):
     unique_id: str = "version"
     device_name: str = "pulseaudio"
-    _once = True
+    _once: bool = True
     _thread_safe: bool = False
 
     @property
     def value(self):
-        return pulse.server_info().server_version
+        return _get_pulse().server_info().server_version
 
 
 @dataclass
@@ -139,7 +166,7 @@ class PAChannelCountSensor(NumericSensor):
 
     @property
     def value(self):
-        return pulse.server_info().channel_count
+        return _get_pulse().server_info().channel_count
 
 
 @dataclass
@@ -152,7 +179,7 @@ class PADefaultSinkSensor(Sensor):
 
     @property
     def value(self):
-        return pulse.server_info().default_sink_name
+        return _get_pulse().server_info().default_sink_name
 
 
 @dataclass
@@ -165,7 +192,7 @@ class PADefaultSourceSensor(Sensor):
 
     @property
     def value(self):
-        return pulse.server_info().default_source_name
+        return _get_pulse().server_info().default_source_name
 
 
 @dataclass
@@ -177,7 +204,7 @@ class PAHostnameSensor(Sensor):
 
     @property
     def value(self):
-        return pulse.server_info().host_name
+        return _get_pulse().server_info().host_name
 
 
 @dataclass
@@ -188,7 +215,7 @@ class PAPlaybackSensor(BooleanSensor):
 
     @property
     def value(self):
-        return any(not s.corked for s in pulse.sink_input_list())
+        return any(not s.corked for s in _get_pulse().sink_input_list())
 
 
 @dataclass
@@ -201,7 +228,7 @@ class PANowPlayingSensor(Sensor):
     @property
     def value(self):
         now_playing_str = ""
-        for s in pulse.sink_input_list():
+        for s in _get_pulse().sink_input_list():
             if not s.corked:
                 now_playing_str += s.name + "\n"
         return now_playing_str.strip()
@@ -227,7 +254,7 @@ class PABluezConnectedSensor(BooleanSensor):
 
     @property
     def value(self):
-        for s in pulse.sink_list():
+        for s in _get_pulse().sink_list():
             if s.driver == "module-bluez5-device.c":
                 return True
         return False
@@ -241,6 +268,7 @@ class PABluezActiveSensor(BooleanSensor):
 
     @property
     def value(self):
+        pulse = _get_pulse()
         actives = [s.sink for s in pulse.sink_input_list()
                    if not s.corked]
         for s in pulse.sink_list():

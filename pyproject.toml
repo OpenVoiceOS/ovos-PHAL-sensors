@@ -13,9 +13,25 @@ authors = [
 ]
 dependencies = [
     "ovos-plugin-manager>=2.1.0,<3.0.0",
+    "ovos-utils>=0.1.0,<1.0.0",
+    "ovos-config>=0.0.1,<1.0.0",
+    "ovos-bus-client>=0.0.1,<1.0.0",
     "psutil",
-    "requests",
     "anyascii"
+]
+
+[project.optional-dependencies]
+ha = ["requests"]
+mqtt = ["ha-mqtt-discoverable"]
+bluetooth = ["pybluez2"]
+pulse = ["pulsectl"]
+screen = ["screen-brightness-control"]
+extras = [
+    "requests",
+    "ha-mqtt-discoverable",
+    "pybluez2",
+    "pulsectl",
+    "screen-brightness-control"
 ]
 
 [project.urls]

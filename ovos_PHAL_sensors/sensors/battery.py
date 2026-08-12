@@ -6,9 +6,15 @@ from ovos_PHAL_sensors.sensors.base import PercentageSensor, NumericSensor, Sens
 
 def get_battery_info():
     # https://www.kernel.org/doc/html/latest/power/power_supply_class.html
-    for b in os.listdir("/sys/class/power_supply/"):
-        with open(f"/sys/class/power_supply/{b}/uevent") as f:
-            data = f.read()
+    path = "/sys/class/power_supply/"
+    if not os.path.isdir(path):
+        return
+    for b in os.listdir(path):
+        try:
+            with open(f"{path}{b}/uevent") as f:
+                data = f.read()
+        except OSError:
+            continue
         voltage = 0
         is_battery = False
         current = 0
@@ -20,7 +26,7 @@ def get_battery_info():
         for l in data.split("\n"):
             try:
                 k, v = l.split("=")
-            except:
+            except ValueError:
                 continue
             # µV, µA, µAh, µWh
             if k == "POWER_SUPPLY_TYPE" and v == "Battery":
@@ -60,10 +66,10 @@ class BatterySensor(PercentageSensor):
 
     @property
     def value(self):
-        battery = list(get_battery_info())[0]
-        if battery is None:
+        batteries = list(get_battery_info())
+        if not batteries:
             return 0
-        return round(battery["capacity"], 3)
+        return round(batteries[0]["capacity"], 3)
 
     @property
     def attrs(self):
@@ -81,9 +87,10 @@ class BatteryPowerSensor(NumericSensor):
 
     @property
     def value(self):
-        battery = list(get_battery_info())[0]
-        if battery is None:
+        batteries = list(get_battery_info())
+        if not batteries:
             return 0
+        battery = batteries[0]
         c = round(battery["power"], 3)
         if battery["status"] == "Discharging":
             return c * -1
@@ -105,9 +112,10 @@ class BatteryCurrentSensor(NumericSensor):
 
     @property
     def value(self):
-        battery = list(get_battery_info())[0]
-        if battery is None:
+        batteries = list(get_battery_info())
+        if not batteries:
             return 0
+        battery = batteries[0]
         c = round(battery["current"], 3)
         if battery["status"] == "Discharging":
             return c * -1
@@ -128,10 +136,10 @@ class BatteryVoltageSensor(NumericSensor):
 
     @property
     def value(self):
-        battery = list(get_battery_info())[0]
-        if battery is None:
+        batteries = list(get_battery_info())
+        if not batteries:
             return 0
-        return round(battery["voltage"], 3)
+        return round(batteries[0]["voltage"], 3)
 
     @property
     def attrs(self):
@@ -148,10 +156,10 @@ class BatteryChargeSensor(NumericSensor):
 
     @property
     def value(self):
-        battery = list(get_battery_info())[0]
-        if battery is None:
+        batteries = list(get_battery_info())
+        if not batteries:
             return 0
-        return round(battery["charge"], 3)
+        return round(batteries[0]["charge"], 3)
 
     @property
     def attrs(self):
@@ -167,10 +175,10 @@ class BatteryStatusSensor(Sensor):
 
     @property
     def value(self):
-        battery = list(get_battery_info())[0]
-        if battery is None:
+        batteries = list(get_battery_info())
+        if not batteries:
             return "unknown"
-        return battery["status"]
+        return batteries[0]["status"]
 
     @property
     def attrs(self):
@@ -186,10 +194,12 @@ class BatteryStoredEnergySensor(NumericSensor):
 
     @property
     def value(self):
-        battery = list(get_battery_info())[0]
-        if battery is None:
+        batteries = list(get_battery_info())
+        if not batteries:
             return 0
-        return round(battery["charge"] * battery["voltage"], 3)
+        battery = batteries[0]
+        # charge (Ah) * voltage (V) = Wh, convert to kWh
+        return round(battery["charge"] * battery["voltage"] / 1000, 3)
 
     @property
     def attrs(self):

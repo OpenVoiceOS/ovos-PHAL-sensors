@@ -4,7 +4,7 @@ from ovos_PHAL_sensors.sensors.base import PercentageSensor
 
 try:
     import screen_brightness_control as sbc
-except:
+except ImportError:
     sbc = None
 
 

@@ -4,14 +4,17 @@ from typing import List
 from ovos_plugin_manager.templates.phal import PHALPlugin
 
 from ovos_PHAL_sensors.device import BaseDevice
-from ovos_PHAL_sensors.device import BaseDevice
 from ovos_PHAL_sensors.loggers import MessageBusLogger, FileSensorLogger
 from ovos_PHAL_sensors.loggers.ha_http import HomeAssistantUpdater
 from ovos_PHAL_sensors.sensors.base import Sensor, BusSensor
 from ovos_PHAL_sensors.sensors.battery import BatterySensor, BatteryPowerSensor, BatteryStatusSensor, \
     BatteryChargeSensor, BatteryCurrentSensor, BatteryVoltageSensor, BatteryStoredEnergySensor
 from ovos_PHAL_sensors.sensors.cpu import CPUCountSensor, \
-    CPUTemperatureSensor, CPUUsageSensor
+    CPUTemperatureSensor, CPUUsageSensor, CPUFrequencySensor, \
+    LoadAverage1Sensor, LoadAverage5Sensor, LoadAverage15Sensor
+from ovos_PHAL_sensors.sensors import throttle
+from ovos_PHAL_sensors.sensors.throttle import ThrottleStateSensor, \
+    UnderVoltageSensor, ThrottledSensor
 from ovos_PHAL_sensors.sensors.extra.blue import BlueScanner, bluetooth
 from ovos_PHAL_sensors.sensors.extra.pulse import PAVersionSensor, PAHostnameSensor, PAPlaybackSensor, \
     PAChannelCountSensor, \
@@ -21,10 +24,11 @@ from ovos_PHAL_sensors.sensors.extra.screen import ScreenBrightnessSensor, sbc
 from ovos_PHAL_sensors.sensors.fan import CpuFanSensor, GpuFanSensor
 from ovos_PHAL_sensors.sensors.memory import SwapTotalSensor, SwapUsageSensor, \
     DiskPercentSensor, DiskTotalSensor, DiskUsageSensor, \
-    MemoryTotalSensor, MemoryUsageSensor
-from ovos_PHAL_sensors.sensors.network import ExternalIPSensor, LocalIPSensor
+    MemoryTotalSensor, MemoryUsageSensor, DiskReadBytesSensor, DiskWriteBytesSensor
+from ovos_PHAL_sensors.sensors.network import ExternalIPSensor, LocalIPSensor, \
+    NetworkBytesSentSensor, NetworkBytesRecvSensor, WifiSignalSensor
 from ovos_PHAL_sensors.sensors.os_system import MachineSensor, ArchitectureSensor, OSSystemSensor, \
-    OSNameSensor, ReleaseSensor, BootTimeSensor
+    OSNameSensor, ReleaseSensor, BootTimeSensor, UptimeSensor, ProcessCountSensor
 from ovos_PHAL_sensors.sensors.procs import SystemdSensor, DBUSDaemonSensor, KDEConnectSensor, \
     PipewireSensor, PulseAudioSensor, PlasmaShellSensor, FirefoxSensor, SpotifySensor, \
     MiniDLNASensor, UPMPDCliSensor
@@ -34,7 +38,8 @@ class OVOSDevice(BaseDevice):
 
     def __init__(self, name, screen=True, battery=True,
                  memory=True, cpu=True, network=True, fan=True,
-                 os=True, apps=True, pa=True, blue=True, wifi=False):
+                 os=True, apps=True, pa=True, blue=True, wifi=False,
+                 rpi=True):
         if pulse is None:
             pa = False
         if bluetooth is None:
@@ -51,6 +56,7 @@ class OVOSDevice(BaseDevice):
         self.os = os
         self.apps = apps
         self.wifi = wifi
+        self.rpi = rpi
         if blue:
             self.blue = BlueScanner(daemon=True, device_name=name)
             self.blue.start()
@@ -72,7 +78,8 @@ class OVOSDevice(BaseDevice):
         if self.os:
             sensors += [OSNameSensor(), OSSystemSensor(),
                         BootTimeSensor(), ReleaseSensor(),
-                        MachineSensor(), ArchitectureSensor()]
+                        MachineSensor(), ArchitectureSensor(),
+                        UptimeSensor(), ProcessCountSensor()]
         if self.apps:
             sensors += [SystemdSensor(), DBUSDaemonSensor(), KDEConnectSensor(),
                         PipewireSensor(), PlasmaShellSensor(), PulseAudioSensor(),
@@ -85,16 +92,30 @@ class OVOSDevice(BaseDevice):
                 SwapTotalSensor(),
                 DiskUsageSensor(),
                 DiskPercentSensor(),
-                DiskTotalSensor()
+                DiskTotalSensor(),
+                DiskReadBytesSensor(),
+                DiskWriteBytesSensor()
             ]
         if self.cpu:
             sensors += [
                 CPUTemperatureSensor(),
                 CPUUsageSensor(),
-                CPUCountSensor()
+                CPUCountSensor(),
+                CPUFrequencySensor(),
+                LoadAverage1Sensor(),
+                LoadAverage5Sensor(),
+                LoadAverage15Sensor()
+            ]
+        if self.rpi and throttle.has_vcgencmd:
+            sensors += [
+                ThrottleStateSensor(),
+                UnderVoltageSensor(),
+                ThrottledSensor()
             ]
         if self.network:
-            sensors += [ExternalIPSensor(), LocalIPSensor()]
+            sensors += [ExternalIPSensor(), LocalIPSensor(),
+                        NetworkBytesSentSensor(), NetworkBytesRecvSensor(),
+                        WifiSignalSensor()]
         if self.screen:
             sensors += [ScreenBrightnessSensor()]
         if self.battery:
@@ -140,7 +161,8 @@ class PHALSensors(PHALPlugin):
                                  os=self.config.get("os_sensors", True),
                                  apps=self.config.get("app_sensors", True),
                                  blue=self.config.get("bluetooth_sensors", True),
-                                 pa=self.config.get("pulseaudio_sensors", True))
+                                 pa=self.config.get("pulseaudio_sensors", True),
+                                 rpi=self.config.get("rpi_sensors", True))
 
     def run(self):
         self.initialize()
@@ -148,3 +170,10 @@ class PHALSensors(PHALPlugin):
         while self.running:
             self.device.update()
             Event().wait(self.sleep)
+
+    def shutdown(self):
+        self.running = False
+        device = getattr(self, "device", None)
+        if device is not None and device.blue is not None:
+            device.blue.stop()
+        super().shutdown()

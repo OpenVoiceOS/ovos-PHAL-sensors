@@ -64,7 +64,7 @@ class PercentageSensor(NumericSensor):
 
     @property
     def value(self):
-        return False
+        return 0
 
     @property
     def attrs(self):
@@ -97,7 +97,7 @@ class BooleanSensor(Sensor):
 @dataclass
 class BusSensor(Sensor):
     bus: Optional[Any] = None
-    _slow: bus = False
+    _slow: bool = False
 
     @classmethod
     def bind(cls, bus):
