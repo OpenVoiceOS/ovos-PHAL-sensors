@@ -125,6 +125,21 @@ Beyond the always-on bus output, readings can also be forwarded to:
 
 All three are off by default and their dependencies load only when enabled.
 
+## Standalone (without OVOS)
+
+The `ovos-sensors` command runs the collector as a plain daemon. If an OVOS
+messagebus is reachable it connects and also emits `ovos.phal.sensor`; if not,
+it runs **without OVOS at all** and just pushes to the integrations you enabled
+(Home Assistant / MQTT). So you can point it at an MQTT broker on any Linux box:
+
+```bash
+pip install ovos-PHAL-sensors[mqtt]
+ovos-sensors        # no OVOS needed — publishes sensors to MQTT/HA
+```
+
+Set `standalone: true` (or `disable_bus: true`) in the config to skip the bus
+entirely and start immediately in HA/MQTT-only mode.
+
 ## Sensors
 
 PulseAudio
