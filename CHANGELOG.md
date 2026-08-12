@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.1.0a1](https://github.com/OpenVoiceOS/ovos-PHAL-sensors/tree/0.1.0a1) (2026-08-12)
+
+[Full Changelog](https://github.com/OpenVoiceOS/ovos-PHAL-sensors/compare/0.0.0a19...0.1.0a1)
+
+**Merged pull requests:**
+
+- feat: resurrect ovos-PHAL-sensors — bus-always-on core, HA optional, diagnostic sensors, standalone mode [\#16](https://github.com/OpenVoiceOS/ovos-PHAL-sensors/pull/16) ([JarbasAl](https://github.com/JarbasAl))
+
 ## [0.0.0a19](https://github.com/OpenVoiceOS/ovos-PHAL-sensors/tree/0.0.0a19) (2026-08-01)
 
 [Full Changelog](https://github.com/OpenVoiceOS/ovos-PHAL-sensors/compare/0.0.0a18...0.0.0a19)
