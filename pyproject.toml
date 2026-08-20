@@ -14,7 +14,7 @@ authors = [
 dependencies = [
     "ovos-plugin-manager>=2.1.0,<3.0.0",
     "ovos-utils>=0.1.0,<1.0.0",
-    "ovos-config>=0.0.1,<1.0.0",
+    "ovos-config>=2.1.1,<2.2.0",
     "ovos-bus-client>=0.0.1,<1.0.0",
     "psutil",
     "anyascii"
