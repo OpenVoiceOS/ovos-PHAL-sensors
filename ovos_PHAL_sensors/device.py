@@ -64,6 +64,7 @@ class BaseDevice:
             # username: Optional[str] = None
             # password: Optional[str] = None
             # client_name: Optional[str] = None
+            # use_tls: Optional[bool] = False
             # tls_key: Optional[str] = None
             # tls_certfile: Optional[str] = None
             # tls_ca_cert: Optional[str] = None
