@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.1.1a1](https://github.com/OpenVoiceOS/ovos-PHAL-sensors/tree/0.1.1a1) (2026-09-16)
+
+[Full Changelog](https://github.com/OpenVoiceOS/ovos-PHAL-sensors/compare/0.1.0a1...0.1.1a1)
+
+**Merged pull requests:**
+
+- fix: floor-only core pins so ovos-plugin-manager 2.x resolves with current ovos-config [\#19](https://github.com/OpenVoiceOS/ovos-PHAL-sensors/pull/19) ([openvoiceos-bot](https://github.com/openvoiceos-bot))
+
 ## [0.1.0a1](https://github.com/OpenVoiceOS/ovos-PHAL-sensors/tree/0.1.0a1) (2026-08-12)
 
 [Full Changelog](https://github.com/OpenVoiceOS/ovos-PHAL-sensors/compare/0.0.0a19...0.1.0a1)
